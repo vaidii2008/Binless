@@ -1,0 +1,6 @@
+-r dev.txt
+datasets==5.1.0
+ipykernel==7.4.0
+matplotlib==3.11.2
+pyarrow==25.0.1
+
