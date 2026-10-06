@@ -1,6 +1,7 @@
 import pandas as pd
+import pytest
 
-from forecasting.baselines import same_day_last_week
+from forecasting.baselines import moving_average_7, same_day_last_week
 
 
 def make_daily(sales_by_store: dict[int, list[float]]) -> pd.DataFrame:
@@ -31,3 +32,17 @@ def test_same_day_last_week_never_mixes_series() -> None:
     store_1 = same_day_last_week(daily)[daily["store_id"] == 1]
     assert store_1.iloc[:7].isna().all()
     assert store_1.iloc[7] == 5.0
+
+
+def test_moving_average_7_uses_only_the_previous_seven_days() -> None:
+    daily = make_daily({0: [float(day) for day in range(10)]})
+    forecast = moving_average_7(daily)
+    assert forecast.iloc[:7].isna().all()
+    assert forecast.iloc[7:].tolist() == pytest.approx([3.0, 4.0, 5.0])
+
+
+def test_moving_average_7_never_mixes_series() -> None:
+    daily = make_daily({0: [1.0] * 8, 1: [5.0] * 8})
+    store_1 = moving_average_7(daily)[daily["store_id"] == 1]
+    assert store_1.iloc[:7].isna().all()
+    assert store_1.iloc[7] == pytest.approx(5.0)
