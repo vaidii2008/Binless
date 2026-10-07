@@ -50,3 +50,15 @@ def test_target_can_come_from_corrected_demand() -> None:
     daily = make_daily(30).assign(demand=10.0)
     features = add_features(daily, target_column="demand")
     assert features.loc[29, "target"] == pytest.approx(10.0 / features.loc[29, "scale"])
+
+
+def test_features_with_a_gap_ignore_the_most_recent_days() -> None:
+    daily = make_daily(40)
+    changed = daily.copy()
+    changed.loc[30, "sales"] = 1000.0
+
+    before = add_features(daily, gap=7)[LOOKBACK_COLUMNS]
+    after = add_features(changed, gap=7)[LOOKBACK_COLUMNS]
+
+    pd.testing.assert_frame_equal(before.iloc[:37], after.iloc[:37])
+    assert before["lag_1"].isna().all()
