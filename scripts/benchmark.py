@@ -45,6 +45,12 @@ def main() -> None:
     history = daily[~last_weeks(daily, args.weeks)]
     profile = hourly_profile(history, by="category_id")
     daily["demand"] = correct_for_stockouts(daily, profile, by="category_id")
+    estimated = daily["demand"].notna()
+    uplift = daily.loc[estimated, "demand"].sum() / daily.loc[estimated, "sales"].sum()
+    print(
+        f"Corrected demand estimated on {estimated.mean():.1%} of days, "
+        f"at {uplift:.3f} times recorded sales"
+    )
 
     runs = {
         "LightGBM on raw sales": backtest(daily, args.weeks, "sales"),
