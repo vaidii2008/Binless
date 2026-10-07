@@ -4,11 +4,19 @@ import pandas as pd
 
 SERIES_KEYS = ["store_id", "product_id"]
 
+
 # stockout_hours counts the trading hours (06:00 to 22:00) a product was out of stock.
 FRN_COLUMNS = {
     "dt": "date",
     "sale_amount": "sales",
     "stock_hour6_22_cnt": "stockout_hours",
+    "first_category_id": "category_id",
+    "activity_flag": "activity",
+    "holiday_flag": "holiday",
+    "precpt": "precipitation",
+    "avg_temperature": "temperature",
+    "avg_humidity": "humidity",
+    "avg_wind_level": "wind_level",
 }
 
 

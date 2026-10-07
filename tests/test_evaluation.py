@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from forecasting.evaluation import evaluate, last_weeks
+from forecasting.evaluation import evaluate, last_weeks, weekly_folds
 
 
 def test_last_weeks_selects_the_final_seven_day_blocks() -> None:
@@ -24,3 +24,11 @@ def test_evaluate_scores_all_days_and_fully_stocked_days_separately() -> None:
     assert scores["wape_all"] == pytest.approx(5 / 15)
     assert scores["wape_stocked"] == pytest.approx(2 / 10)
     assert scores["bias_stocked"] == pytest.approx(0.2)
+
+
+def test_weekly_folds_split_the_final_weeks_into_seven_day_blocks() -> None:
+    daily = pd.DataFrame({"date": pd.date_range("2024-04-01", periods=30)})
+    assert weekly_folds(daily, n_weeks=2) == [
+        (pd.Timestamp("2024-04-17"), pd.Timestamp("2024-04-24")),
+        (pd.Timestamp("2024-04-24"), pd.Timestamp("2024-05-01")),
+    ]

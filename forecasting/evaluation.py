@@ -7,8 +7,7 @@ from forecasting.metrics import bias, wape
 
 def last_weeks(daily: pd.DataFrame, n_weeks: int) -> pd.Series:
     """Return a mask selecting the rows in the final n_weeks of the date range."""
-    first_day = daily["date"].max() - pd.Timedelta(days=7 * n_weeks - 1)
-    return daily["date"] >= first_day
+    return daily["date"] >= _first_day(daily, n_weeks)
 
 
 def evaluate(
@@ -28,3 +27,19 @@ def evaluate(
         "wape_stocked": wape(sales[stocked], forecast[stocked]),
         "bias_stocked": bias(sales[stocked], forecast[stocked]),
     }
+
+
+def weekly_folds(
+    daily: pd.DataFrame, n_weeks: int
+) -> list[tuple[pd.Timestamp, pd.Timestamp]]:
+    """Return the start and end of each of the final n_weeks; ends are exclusive."""
+    first_day = _first_day(daily, n_weeks)
+    return [
+        (first_day + pd.Timedelta(weeks=week), first_day + pd.Timedelta(weeks=week + 1))
+        for week in range(n_weeks)
+    ]
+
+
+def _first_day(daily: pd.DataFrame, n_weeks: int) -> pd.Timestamp:
+    """Return the first date of the final n_weeks."""
+    return daily["date"].max() - pd.Timedelta(days=7 * n_weeks - 1)
