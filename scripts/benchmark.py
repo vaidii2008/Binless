@@ -1,4 +1,4 @@
-"""Backtest LightGBM on raw sales and on corrected demand against the baselines."""
+"""Benchmark forecasts and order policies on the final weeks of a FreshRetailNet-50K subset."""
 
 import argparse
 import logging
@@ -11,6 +11,7 @@ from forecasting.data import daily_from_frn
 from forecasting.evaluation import evaluate, last_weeks, weekly_folds
 from forecasting.features import add_features
 from forecasting.model import fit_quantile_models, predict_quantiles
+from forecasting.ordering import order_outcomes
 from forecasting.stockouts import correct_for_stockouts, hourly_profile
 
 QUANTILES = [0.5, 0.8, 0.9]
@@ -67,6 +68,22 @@ def main() -> None:
                 f"{below[test].mean():.1%} of all days, "
                 f"{below[stocked].mean():.1%} of fully stocked days"
             )
+    policies = {
+        "Order last week's sales": same_day_last_week(daily),
+        "Order the 7-day average": moving_average_7(daily),
+    }
+    for label, forecasts in runs.items():
+        for column in forecasts.columns:
+            policies[f"{label}, {column.upper()}"] = forecasts[column]
+
+    outcomes = {}
+    for label, orders in policies.items():
+        on_stocked = order_outcomes(orders[stocked], daily.loc[stocked, "sales"])
+        on_all = order_outcomes(orders[test], daily.loc[test, "demand"])
+        outcomes[label] = {
+            f"stocked_{key}": value for key, value in on_stocked.items()
+        } | {f"all_{key}": value for key, value in on_all.items()}
+    print(pd.DataFrame(outcomes).T.round(3).to_string())
 
 
 if __name__ == "__main__":
