@@ -52,3 +52,13 @@ def simulate_sellouts(days: pd.DataFrame, cut_hours: np.ndarray) -> pd.DataFrame
         hourly_sales=list(hourly),
         hourly_out_of_stock=list(lost.astype(int)),
     )
+
+
+def profile_groups(daily: pd.DataFrame) -> pd.Series:
+    """Return each day's profile group: its category plus weekday or weekend.
+
+    In FreshRetailNet-50K, weekend sales surge in the morning while weekdays also
+    peak in the afternoon, so the two need separate hourly profiles.
+    """
+    day_type = np.where(daily["date"].dt.dayofweek >= 5, "weekend", "weekday")
+    return daily["category_id"].astype(str) + " " + day_type

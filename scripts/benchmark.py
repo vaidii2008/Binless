@@ -12,7 +12,7 @@ from forecasting.evaluation import evaluate, last_weeks, weekly_folds
 from forecasting.features import add_features
 from forecasting.model import fit_quantile_models, predict_quantiles
 from forecasting.ordering import order_outcomes
-from forecasting.stockouts import correct_for_stockouts, hourly_profile
+from forecasting.stockouts import correct_for_stockouts, hourly_profile, profile_groups
 
 QUANTILES = [0.5, 0.8, 0.9]
 
@@ -40,11 +40,12 @@ def main() -> None:
     args = parser.parse_args()
 
     daily = daily_from_frn(pd.read_parquet(args.data))
-    # The profile only uses weeks before the test window, so no test day shapes
-    # its own correction.
+    # The profile only uses weeks before the test window, so no test day shapes its own correction.
+
+    daily["profile_group"] = profile_groups(daily)
     history = daily[~last_weeks(daily, args.weeks)]
-    profile = hourly_profile(history, by="category_id")
-    daily["demand"] = correct_for_stockouts(daily, profile, by="category_id")
+    profile = hourly_profile(history, by="profile_group")
+    daily["demand"] = correct_for_stockouts(daily, profile, by="profile_group")
     estimated = daily["demand"].notna()
     uplift = daily.loc[estimated, "demand"].sum() / daily.loc[estimated, "sales"].sum()
     print(

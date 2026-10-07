@@ -5,6 +5,7 @@ import pytest
 from forecasting.stockouts import (
     correct_for_stockouts,
     hourly_profile,
+    profile_groups,
     simulate_sellouts,
 )
 
@@ -64,3 +65,10 @@ def test_correction_scales_sales_by_the_share_of_usual_sales_in_stock() -> None:
     assert demand.iloc[0] == pytest.approx(4.0)
     assert demand.iloc[1] == pytest.approx(8.0)
     assert np.isnan(demand.iloc[2])
+
+
+def test_profile_groups_split_categories_by_weekend() -> None:
+    daily = pd.DataFrame(
+        {"category_id": [3, 3], "date": pd.to_datetime(["2024-04-05", "2024-04-06"])}
+    )
+    assert profile_groups(daily).tolist() == ["3 weekday", "3 weekend"]

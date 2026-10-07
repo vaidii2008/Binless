@@ -11,10 +11,15 @@ from forecasting.metrics import bias, wape
 from forecasting.stockouts import (
     correct_for_stockouts,
     hourly_profile,
+    profile_groups,
     simulate_sellouts,
 )
 
-PROFILES = {"Global profile": "all_products", "Category profile": "category_id"}
+PROFILES = {
+    "Global profile": "all_products",
+    "Category profile": "category_id",
+    "Category and day profile": "profile_group",
+}
 
 
 def main() -> None:
@@ -25,6 +30,7 @@ def main() -> None:
     args = parser.parse_args()
 
     daily = daily_from_frn(pd.read_parquet(args.data)).assign(all_products=0)
+    daily["profile_group"] = profile_groups(daily)
     test_window = last_weeks(daily, args.weeks)
     history = daily[~test_window]
     days = daily[test_window & (daily["stockout_hours"] == 0) & (daily["sales"] > 0)]
