@@ -17,6 +17,8 @@ FRN_COLUMNS = {
     "avg_temperature": "temperature",
     "avg_humidity": "humidity",
     "avg_wind_level": "wind_level",
+    "hours_sale": "hourly_sales",
+    "hours_stock_status": "hourly_out_of_stock",
 }
 
 
