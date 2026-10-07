@@ -36,11 +36,11 @@ These figures are for fully stocked days, where demand equals recorded sales. Or
 
 ### Stockouts hide demand
 
-In the sample, 44.1% of store-product days had at least one out-of-stock hour during trading hours. On the 94.0% of days the stockout correction can estimate, demand comes out at 1.25 times recorded sales, so stockouts hid about a fifth of demand. That matches the 19.8% of trading hours that were out of stock. The stockout figures come from `notebooks/01_explore_frn.ipynb`.
+In the sample, 44.1% of store-product days had at least one out-of-stock hour during trading hours, and 19.8% of trading hours were out of stock. These figures come from `notebooks/01_explore_frn.ipynb`.
 
-The correction assumes that a product that sold out would otherwise have followed its category's usual hourly pattern. When I hid the later hours of fully stocked days, it recovered the hidden sales with a bias of +0.9% (`python -m scripts.validate_stockout_correction`).
+The stockout correction divides each day's sales by the share of a normal day's sales that falls in the hours the product was in stock, using its category's usual hourly pattern for that kind of day (weekday or weekend). When I hid the later hours of fully stocked days, it recovered the hidden sales with a bias of +0.8% (`python -m scripts.validate_stockout_correction`). On the 94.0% of days it can estimate, it puts demand at 1.25 times recorded sales.
 
-Training LightGBM on corrected demand moved its bias against recorded sales from -2.5% to +14.4% but didn't improve the trade-off between waste and empty shelves. Its median forecast wasted 21.2% and ran short on 34.7% of fully stocked days, which sits between the recorded-sales model's median and 80th percentile. So Binless orders from the model trained on recorded sales and uses the correction to estimate lost demand.
+That figure is probably too high. Training LightGBM on corrected demand moved its bias against recorded sales from -2.5% to +14.5% and left it over-forecasting fully stocked days by 13.6%. In a different setup, the dataset's authors report a bias of +0.57% to +2.58% on stockout-free periods for their best model after learned demand recovery ([paper](https://arxiv.org/abs/2505.16319)). Splitting the hourly profiles into weekdays and weekends didn't change the estimate. The corrected model's median forecast wasted 21.2% and ran short on 34.5% of fully stocked days, between the recorded-sales model's median and 80th percentile, so Binless orders from the model trained on recorded sales.
 
 ## What works so far
 
