@@ -22,7 +22,8 @@ FEATURES = [
 ]
 
 
-def add_features(daily: pd.DataFrame) -> pd.DataFrame:
+# forecasting/features.py
+def add_features(daily: pd.DataFrame, target_column: str = "sales") -> pd.DataFrame:
     """Return the daily table with the scale, the model features and the scaled target.
 
     Lags, rolling statistics and the scale only use days before each row's date.
@@ -41,5 +42,5 @@ def add_features(daily: pd.DataFrame) -> pd.DataFrame:
         mean_7=sales.transform(lambda s: s.shift(1).rolling(7).mean()) / scale,
         cv_28=sales.transform(lambda s: s.shift(1).rolling(28).std()) / scale,
         day_of_week=daily["date"].dt.dayofweek,
-        target=daily["sales"] / scale,
+        target=daily[target_column] / scale,
     )

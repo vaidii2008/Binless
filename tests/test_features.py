@@ -44,3 +44,9 @@ def test_scale_is_missing_after_28_days_without_sales() -> None:
     daily = make_daily(30)
     daily["sales"] = 0.0
     assert add_features(daily)["scale"].isna().all()
+
+
+def test_target_can_come_from_corrected_demand() -> None:
+    daily = make_daily(30).assign(demand=10.0)
+    features = add_features(daily, target_column="demand")
+    assert features.loc[29, "target"] == pytest.approx(10.0 / features.loc[29, "scale"])

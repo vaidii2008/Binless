@@ -6,8 +6,8 @@ import pandas as pd
 # The stock flags cover 06:00 to 21:59, the hours the products are on sale.
 TRADING_HOURS = slice(6, 22)
 
-# Below this share of usual sales, scaling up amplifies noise more than it
-# recovers demand. The validation checks the choice.
+
+# Below this share of usual sales, scaling up amplifies noise more than it recovers demand. It's a judgement call that mainly affects products that sold out in the first hours of trading, which the sell-out validation (10:00 onwards) doesn't cover.
 MIN_AVAILABLE_SHARE = 0.2
 
 
