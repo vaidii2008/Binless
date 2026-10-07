@@ -34,6 +34,21 @@ WAPE is the total absolute error divided by total sales, so lower is better.
 
 These figures are for fully stocked days, where demand equals recorded sales. Ordering the median forecast instead of last week's sales cuts waste from 20.6% to 14.6% of what's ordered and serves more of the demand, with slightly more days that run short. Ordering the 80th percentile trades extra waste for fewer empty shelves, and the shop owner chooses the balance. Across all days, with demand estimated by the stockout correction below, the median forecast cuts waste from 14.6% to 9.9%.
 
+### Held-out week, against the dataset authors' models
+
+The dataset's authors forecast each day of the held-out evaluation week from the end of the train split and score only stockout-free periods, across all 898 stores. I ran LightGBM once under the same protocol, with every feature at least 7 days old. I counted a day as stockout-free when none of its trading hours (06:00 to 22:00) was out of stock, since the paper doesn't spell out its exact rule. The authors' figures come from Table 3 of their [paper](https://arxiv.org/abs/2505.16319), and I didn't rerun their code. To reproduce mine, run `python scripts/download_frn.py --n-stores 898`, then `python -m scripts.holdout_eval`, which takes a few minutes.
+
+| Model | Trained on | WAPE | WPE (bias) |
+| --- | --- | --- | --- |
+| Same day last week (mine) | Recorded sales | 38.91% | -0.77% |
+| LightGBM median forecast (mine) | Recorded sales | 31.57% | -10.13% |
+| SSA (authors) | Recorded sales | 31.97% | -10.50% |
+| TFT (authors) | Recorded sales | 31.75% | -7.37% |
+| DLinear (authors) | Recorded sales | 31.56% | -4.89% |
+| TFT (authors) | Demand recovered by TimesNet | 29.02% | 2.58% |
+
+On recorded sales, my model matches the authors' baselines on accuracy and under-forecasts more than their TFT and DLinear. Their best model, trained on demand recovered by a learned model, has a WAPE 2.55 points lower. In my own backtest, training on my simpler stockout correction didn't improve accuracy, so a learned recovery model is the next thing to try.
+
 ### Stockouts hide demand
 
 In the sample, 44.1% of store-product days had at least one out-of-stock hour during trading hours, and 19.8% of trading hours were out of stock. These figures come from `notebooks/01_explore_frn.ipynb`.
@@ -44,17 +59,16 @@ That figure is probably too high. Training LightGBM on corrected demand moved it
 
 ## What works so far
 
-- A forecasting package in plain Python, with no Django imports, containing a FreshRetailNet-50K adapter, two baselines, WAPE and bias, leakage-safe features, LightGBM quantile models, the stockout correction and order outcomes.
-- 25 tests, run by GitHub Actions on every push, including one that fails if the forecasting package ever imports Django.
+- A forecasting package in plain Python, with no Django imports, containing a FreshRetailNet-50K adapter, two baselines, WAPE and bias, leakage-safe features, LightGBM quantile models, the stockout correction, a newsvendor order rule and order outcomes.
+- 29 tests, run by GitHub Actions on every push, including one that fails if the forecasting package ever imports Django.
 - A Django web app with a health check.
 - An exploration notebook on the 50-store sample.
 
 ## Planned
 
-- An order rule based on the newsvendor critical ratio, with cost assumptions per product category.
-- A comparison with the official FreshRetailNet-50K baseline, and one final run on the held-out evaluation week.
-- A deployed demo for a simulated Irish shop, labelled as simulated wherever it appears.
+- A deployed demo for a simulated Irish shop, with cost assumptions per product category, labelled as simulated wherever it appears.
 - A test of the stockout correction against known demand in the simulated shop.
+- A learned demand recovery model, to compare with the simple stockout correction.
 
 ## Run it locally
 
