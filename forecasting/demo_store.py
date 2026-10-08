@@ -14,7 +14,6 @@ import pandas as pd
 from forecasting.ordering import Costs
 from forecasting.stockouts import TRADING_HOURS
 
-
 STORE_NAME = "Rowan Street Grocer (simulated)"
 SHOP_TIMEZONE = ZoneInfo("Europe/Dublin")
 
