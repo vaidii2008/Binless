@@ -6,3 +6,4 @@ PROGRESS.md
 db.sqlite3
 data/
 
+.aws-sam/
