@@ -39,6 +39,16 @@ class Costs:
         return margin / (margin + waste_cost)
 
 
+def adjusted_ratio(critical_ratio: float, shelf_weight: float) -> float:
+    """Return the critical ratio when an empty shelf costs shelf_weight times the lost margin.
+
+    A weight of 1 is the plain newsvendor rule. Above 1 the owner also counts
+    customers who might shop elsewhere; below 1 leftovers hurt more.
+    """
+    weighted_margin = shelf_weight * critical_ratio
+    return weighted_margin / (weighted_margin + 1 - critical_ratio)
+
+
 def order_quantity(forecasts: pd.DataFrame, critical_ratio: float) -> pd.Series:
     """Return the forecast at the critical ratio, interpolating between quantile columns.
 

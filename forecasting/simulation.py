@@ -1,4 +1,4 @@
-"""A simulated Irish corner shop for the Binless demo.
+"""A simulated Irish corner shop that Binless forecasts and orders for.
 
 Every product, price and sales pattern here is invented for illustration. None of
 it comes from a real shop.
@@ -95,13 +95,20 @@ PRODUCTS = [
     ("Fruit salad pot", "Fruit", 6),
 ]
 
+# Dashboard slider positions: the label, and how much an empty shelf counts against the lost margin.
+SHELF_BALANCE = [
+    ("Fewer leftovers", 0.5),
+    ("Balanced", 1.0),
+    ("Fuller shelves", 2.0),
+    ("Rarely run out", 4.0),
+]
+
 
 PROMOTION_CHANCE = 0.08
 PROMOTION_DISCOUNT = 0.8
 PROMOTION_LIFT = 1.35
 RAIN_EFFECT = 0.92
-# The simulated owner stocks 95% to 130% of expected demand each morning, so some
-# days sell out, as they do in a real shop.
+# The simulated owner stocks 95% to 130% of expected demand each morning, so some days sell out, as they do in a real shop.
 STOCK_RANGE = (0.95, 1.3)
 BANK_HOLIDAYS = {date(2026, 6, 1), date(2026, 8, 3), date(2026, 10, 26)}
 
@@ -138,10 +145,8 @@ def simulate_day(
     return demand, sales, out_of_stock
 
 
-def simulate_demo_store(
-    end_date: date, n_days: int = 120, seed: int = 42
-) -> pd.DataFrame:
-    """Return n_days of simulated daily sales for every demo product, up to end_date.
+def simulate_shop(end_date: date, n_days: int = 120, seed: int = 42) -> pd.DataFrame:
+    """Return n_days of simulated daily sales for every product, up to end_date.
 
     true_demand is what customers wanted, and sales is what they could buy before
     the shelf ran out.

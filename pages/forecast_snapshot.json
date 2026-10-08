@@ -1,0 +1,692 @@
+{
+  "store_name": "Rowan Street Grocer (simulated)",
+  "date": "2026-10-09",
+  "balance_labels": [
+    "Fewer leftovers",
+    "Balanced",
+    "Fuller shelves",
+    "Rarely run out"
+  ],
+  "products": [
+    {
+      "name": "White sliced pan",
+      "category": "Bread",
+      "typical_day": 25,
+      "busy_day": 27,
+      "orders": [
+        {
+          "units": 23,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 25,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 26,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 26,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 22 on the same day last week",
+          "direction": "down"
+        },
+        {
+          "text": "It's a Friday",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Brown soda bread",
+      "category": "Bread",
+      "typical_day": 14,
+      "busy_day": 18,
+      "orders": [
+        {
+          "units": 14,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 14,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 16,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 17,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Averaged 12 a day over the last week",
+          "direction": "up"
+        },
+        {
+          "text": "Sold 10 yesterday",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Sourdough loaf",
+      "category": "Bread",
+      "typical_day": 8,
+      "busy_day": 9,
+      "orders": [
+        {
+          "units": 8,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "It's a Friday",
+          "direction": "up"
+        },
+        {
+          "text": "0 mm of rain forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Wholemeal pan",
+      "category": "Bread",
+      "typical_day": 13,
+      "busy_day": 15,
+      "orders": [
+        {
+          "units": 12,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 13,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 14,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 14,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Not on promotion",
+          "direction": "down"
+        },
+        {
+          "text": "Calm forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Bagels, 4 pack",
+      "category": "Bread",
+      "typical_day": 6,
+      "busy_day": 7,
+      "orders": [
+        {
+          "units": 6,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 6,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sales have been steady lately",
+          "direction": "up"
+        },
+        {
+          "text": "75% humidity forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Whole milk, 2 litres",
+      "category": "Dairy",
+      "typical_day": 32,
+      "busy_day": 36,
+      "orders": [
+        {
+          "units": 31,
+          "sell_out_chance": 62
+        },
+        {
+          "units": 33,
+          "sell_out_chance": 45
+        },
+        {
+          "units": 34,
+          "sell_out_chance": 29
+        },
+        {
+          "units": 36,
+          "sell_out_chance": 17
+        }
+      ],
+      "reasons": [
+        {
+          "text": "It's a Friday",
+          "direction": "up"
+        },
+        {
+          "text": "0 mm of rain forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Low-fat milk, 2 litres",
+      "category": "Dairy",
+      "typical_day": 17,
+      "busy_day": 20,
+      "orders": [
+        {
+          "units": 17,
+          "sell_out_chance": 62
+        },
+        {
+          "units": 18,
+          "sell_out_chance": 45
+        },
+        {
+          "units": 19,
+          "sell_out_chance": 29
+        },
+        {
+          "units": 20,
+          "sell_out_chance": 17
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Averaged 19 a day over the last week",
+          "direction": "down"
+        },
+        {
+          "text": "Not on promotion",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Fresh cream, 250 ml",
+      "category": "Dairy",
+      "typical_day": 8,
+      "busy_day": 9,
+      "orders": [
+        {
+          "units": 8,
+          "sell_out_chance": 62
+        },
+        {
+          "units": 8,
+          "sell_out_chance": 45
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 29
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 17
+        }
+      ],
+      "reasons": [
+        {
+          "text": "0 mm of rain forecast",
+          "direction": "up"
+        },
+        {
+          "text": "Sold 4 yesterday",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Breakfast roll",
+      "category": "Deli",
+      "typical_day": 28,
+      "busy_day": 31,
+      "orders": [
+        {
+          "units": 27,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 29,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 31,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 32,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 17 on the same day two weeks ago",
+          "direction": "down"
+        },
+        {
+          "text": "Averaged 29 a day over the last week",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Chicken fillet roll",
+      "category": "Deli",
+      "typical_day": 35,
+      "busy_day": 38,
+      "orders": [
+        {
+          "units": 35,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 35,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 36,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 38,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "The usual pattern for this kind of product",
+          "direction": "up"
+        },
+        {
+          "text": "Not on promotion",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Ham and cheese sandwich",
+      "category": "Deli",
+      "typical_day": 16,
+      "busy_day": 19,
+      "orders": [
+        {
+          "units": 16,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 17,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 18,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 19,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "On promotion at 20% off",
+          "direction": "up"
+        },
+        {
+          "text": "Sold 15 on the same day last week",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Tuna and sweetcorn wrap",
+      "category": "Deli",
+      "typical_day": 10,
+      "busy_day": 11,
+      "orders": [
+        {
+          "units": 10,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 10,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 11,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 11,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 12 yesterday",
+          "direction": "up"
+        },
+        {
+          "text": "The usual pattern for this kind of product",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Caesar salad bowl",
+      "category": "Salads",
+      "typical_day": 8,
+      "busy_day": 9,
+      "orders": [
+        {
+          "units": 8,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 9,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 10,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 10 yesterday",
+          "direction": "up"
+        },
+        {
+          "text": "0 mm of rain forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Pasta salad",
+      "category": "Salads",
+      "typical_day": 6,
+      "busy_day": 7,
+      "orders": [
+        {
+          "units": 5,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 6,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 9 on the same day two weeks ago",
+          "direction": "up"
+        },
+        {
+          "text": "The usual pattern for this kind of product",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Coleslaw tub",
+      "category": "Salads",
+      "typical_day": 4,
+      "busy_day": 5,
+      "orders": [
+        {
+          "units": 4,
+          "sell_out_chance": 67
+        },
+        {
+          "units": 5,
+          "sell_out_chance": 50
+        },
+        {
+          "units": 5,
+          "sell_out_chance": 33
+        },
+        {
+          "units": 5,
+          "sell_out_chance": 20
+        }
+      ],
+      "reasons": [
+        {
+          "text": "It's a Friday",
+          "direction": "up"
+        },
+        {
+          "text": "Sales have been steady lately",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Strawberries, punnet",
+      "category": "Fruit",
+      "typical_day": 10,
+      "busy_day": 12,
+      "orders": [
+        {
+          "units": 11,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 11,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 12,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 12,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Averaged 10 a day over the last week",
+          "direction": "down"
+        },
+        {
+          "text": "Not on promotion",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Bananas, bunch",
+      "category": "Fruit",
+      "typical_day": 16,
+      "busy_day": 19,
+      "orders": [
+        {
+          "units": 16,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 16,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 18,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 19,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 9 on the same day two weeks ago",
+          "direction": "down"
+        },
+        {
+          "text": "Sold 18 yesterday",
+          "direction": "down"
+        }
+      ]
+    },
+    {
+      "name": "Blueberries, punnet",
+      "category": "Fruit",
+      "typical_day": 7,
+      "busy_day": 8,
+      "orders": [
+        {
+          "units": 7,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 8,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 8,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Not on promotion",
+          "direction": "down"
+        },
+        {
+          "text": "Calm forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Apples, 4 pack",
+      "category": "Fruit",
+      "typical_day": 9,
+      "busy_day": 10,
+      "orders": [
+        {
+          "units": 9,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 10,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 10,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 10,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "It's a Friday",
+          "direction": "up"
+        },
+        {
+          "text": "0 mm of rain forecast",
+          "direction": "up"
+        }
+      ]
+    },
+    {
+      "name": "Fruit salad pot",
+      "category": "Fruit",
+      "typical_day": 6,
+      "busy_day": 7,
+      "orders": [
+        {
+          "units": 7,
+          "sell_out_chance": 57
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 40
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 25
+        },
+        {
+          "units": 7,
+          "sell_out_chance": 14
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Sold 3 on the same day two weeks ago",
+          "direction": "down"
+        },
+        {
+          "text": "Sales have been steady lately",
+          "direction": "down"
+        }
+      ]
+    }
+  ]
+}

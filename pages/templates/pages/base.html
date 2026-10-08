@@ -1,0 +1,25 @@
+
+<!doctype html>
+<html lang="en-IE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Binless{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2"></script>
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul><li><a href="{% url 'home' %}"><strong>Binless</strong></a></li></ul>
+      <ul><li><a href="{% url 'orders' %}">Tomorrow's order</a></li></ul>
+    </nav>
+  </header>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="container">
+    <small>The shop and all its sales are simulated. Prices and costs in euro are assumptions.</small>
+  </footer>
+</body>
+</html>

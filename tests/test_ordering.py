@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from forecasting.ordering import Costs, order_outcomes, order_quantity
+from forecasting.ordering import Costs, adjusted_ratio, order_outcomes, order_quantity
 
 
 def test_order_outcomes_count_waste_stockouts_and_service() -> None:
@@ -28,3 +28,9 @@ def test_order_quantity_interpolates_between_quantiles() -> None:
     assert order_quantity(forecasts, 0.6).iloc[0] == pytest.approx(12.0)
     assert order_quantity(forecasts, 0.85).iloc[0] == pytest.approx(18.0)
     assert order_quantity(forecasts, 0.3).iloc[0] == pytest.approx(10.0)
+
+
+def test_adjusted_ratio_leans_towards_full_shelves_as_the_weight_grows() -> None:
+    assert adjusted_ratio(0.5, 1) == pytest.approx(0.5)
+    assert adjusted_ratio(0.5, 2) == pytest.approx(2 / 3)
+    assert adjusted_ratio(0.5, 0.5) == pytest.approx(1 / 3)

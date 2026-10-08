@@ -1,4 +1,4 @@
-"""Write the simulated demo shop's history and tomorrow's plan to data/demo/simulated.parquet."""
+"""Write the simulated shop's history and tomorrow's plan to data/shop/simulated.parquet."""
 
 import argparse
 import logging
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from forecasting.demo_store import SHOP_TIMEZONE, STORE_NAME, simulate_demo_store
+from forecasting.simulation import SHOP_TIMEZONE, STORE_NAME, simulate_shop
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +23,8 @@ def main() -> None:
 
     # One extra day supplies tomorrow's promotions, holiday flag and weather forecast.
     tomorrow = args.today + timedelta(days=1)
-    simulated = simulate_demo_store(tomorrow, args.days + 1, args.seed)
-    path = Path("data/demo/simulated.parquet")
+    simulated = simulate_shop(tomorrow, args.days + 1, args.seed)
+    path = Path("data/shop/simulated.parquet")
     path.parent.mkdir(parents=True, exist_ok=True)
     simulated.to_parquet(path, index=False)
 

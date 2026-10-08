@@ -2,7 +2,7 @@ from datetime import date
 
 import pandas as pd
 
-from forecasting.demo_store import CATEGORIES, PRODUCTS, simulate_demo_store
+from forecasting.simulation import CATEGORIES, PRODUCTS, simulate_shop
 
 HOURLY_COLUMNS = ["hourly_sales", "hourly_out_of_stock"]
 
@@ -19,8 +19,8 @@ def test_every_product_belongs_to_a_known_category() -> None:
 
 
 def test_simulation_is_reproducible_and_covers_every_product_day() -> None:
-    first = simulate_demo_store(date(2026, 10, 7), n_days=30, seed=1)
-    second = simulate_demo_store(date(2026, 10, 7), n_days=30, seed=1)
+    first = simulate_shop(date(2026, 10, 7), n_days=30, seed=1)
+    second = simulate_shop(date(2026, 10, 7), n_days=30, seed=1)
     pd.testing.assert_frame_equal(
         first.drop(columns=HOURLY_COLUMNS), second.drop(columns=HOURLY_COLUMNS)
     )
@@ -29,6 +29,6 @@ def test_simulation_is_reproducible_and_covers_every_product_day() -> None:
 
 
 def test_sales_never_exceed_demand_and_some_days_sell_out() -> None:
-    daily = simulate_demo_store(date(2026, 10, 7), n_days=60, seed=1)
+    daily = simulate_shop(date(2026, 10, 7), n_days=60, seed=1)
     assert (daily["sales"] <= daily["true_demand"]).all()
     assert 0 < (daily["stockout_hours"] > 0).mean() < 0.6

@@ -1,0 +1,28 @@
+
+<p><strong>{{ label }}</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Order</th>
+      <th>Sales on a typical / busy day</th>
+      <th>Chance of selling out</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.name }}<br><small>{{ row.category }}</small></td>
+      <td><input type="number" min="0" value="{{ row.order.units }}" aria-label="Order for {{ row.name }}"></td>
+      <td>{{ row.typical_day }} / {{ row.busy_day }}</td>
+      <td>{{ row.order.sell_out_chance }}%</td>
+      <td>
+        {% for reason in row.reasons %}
+          {% if reason.direction == "up" %}▲{% else %}▼{% endif %} {{ reason.text }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,19 @@
+
+{% extends "pages/base.html" %}
+{% block title %}Tomorrow's order | Binless{% endblock %}
+{% block content %}
+<hgroup>
+  <h1>Order for {{ order_date|date:"l j F" }}</h1>
+  <p>{{ store_name }}. Every product and number on this page is simulated.</p>
+</hgroup>
+<label for="balance">
+  How much does an empty shelf matter to you?
+  <input type="range" id="balance" name="balance"
+         min="0" max="{{ last_position }}" value="{{ position }}"
+         hx-get="{% url 'order_table' %}" hx-target="#orders"
+         hx-trigger="input changed delay:150ms">
+</label>
+<div id="orders">
+  {% include "pages/_order_table.html" %}
+</div>
+{% endblock %}
