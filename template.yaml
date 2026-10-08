@@ -1,0 +1,34 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Binless web app on AWS Lambda behind an HTTP API
+
+Resources:
+  WebFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - arm64
+      MemorySize: 1024
+      Timeout: 30
+      Environment:
+        Variables:
+          DJANGO_ALLOWED_HOSTS: !Sub ".execute-api.${AWS::Region}.amazonaws.com,127.0.0.1,localhost"
+          DJANGO_SECRET_KEY_PARAMETER: /binless/django-secret-key
+      Policies:
+        - SSMParameterReadPolicy:
+            ParameterName: binless/django-secret-key
+      Events:
+        Site:
+          Type: HttpApi
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: web
+      DockerBuildTarget: web
+
+Outputs:
+  SiteUrl:
+    Description: Public URL of the web app
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"

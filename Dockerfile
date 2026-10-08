@@ -15,4 +15,4 @@ COPY manage.py ./
 COPY config config
 COPY pages pages
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "1"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "1", "--no-control-socket"]
