@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-# config/settings.py
 import os
 from pathlib import Path
 
@@ -20,10 +19,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+
+def _secret_key() -> str:
+    """Return the secret key from SSM Parameter Store on AWS, or from the environment."""
+    parameter = os.environ.get("DJANGO_SECRET_KEY_PARAMETER")
+    if not parameter:
+        return os.environ["DJANGO_SECRET_KEY"]
+    # Imported here so local runs, which read the key from .env, skip boto3's start-up time.
+    import boto3
+
+    response = boto3.client("ssm").get_parameter(Name=parameter, WithDecryption=True)
+    return response["Parameter"]["Value"]
+
+
+SECRET_KEY = _secret_key()
 
 DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
 
+ALLOWED_HOSTS = [
+    host for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if host
+]
 
 # Application definition
 
@@ -119,3 +134,12 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Lambda keeps only what's written to stdout and stderr, so errors are logged there.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+}
