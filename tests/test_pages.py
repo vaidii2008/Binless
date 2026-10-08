@@ -2,9 +2,10 @@ from django.test import Client
 from django.urls import reverse
 
 
-def test_home_returns_200(client: Client) -> None:
+def test_home_links_to_tomorrows_order(client: Client) -> None:
     response = client.get(reverse("home"))
     assert response.status_code == 200
+    assert reverse("orders").encode() in response.content
 
 
 def test_healthz_returns_ok(client: Client) -> None:

@@ -10,8 +10,8 @@ DEFAULT_BALANCE = 1
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    """Return a placeholder landing page."""
-    return HttpResponse("Binless is running.")
+    """Render the landing page."""
+    return render(request, "pages/home.html")
 
 
 def healthz(request: HttpRequest) -> HttpResponse:

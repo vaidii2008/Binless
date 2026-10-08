@@ -1,0 +1,22 @@
+
+{% extends "pages/base.html" %}
+{% block title %}Binless: fresh-food ordering for independent grocers{% endblock %}
+{% block content %}
+<section>
+  <hgroup>
+    <h1>How much fresh food should you order for tomorrow?</h1>
+    <p>Binless forecasts each product's sales as a range, turns that range into an order that weighs the cost of waste against the cost of an empty shelf, and explains each line in plain English.</p>
+  </hgroup>
+  <a href="{% url 'orders' %}" role="button">See tomorrow's order</a>
+</section>
+
+<section>
+  <h2>What it found</h2>
+  <ul>
+    <li>In a four-week test on 50 stores, ordering from Binless's forecast instead of reordering last week's sales cut waste by about 30% and served more of the demand.</li>
+    <li>On the dataset's held-out week across all 898 stores, its forecast error matched the dataset authors' published models: 31.6%, against 31.6% to 32.0%.</li>
+  </ul>
+  <p>On 44% of store-product days a product sold out at some point, so sales records understate what customers wanted. That's why the order page lets you choose how much an empty shelf matters.</p>
+  <p><small>Results come from <a href="https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K">FreshRetailNet-50K</a>, a public dataset of fresh-food sales (CC BY 4.0). The method, code and the command behind every number are on <a href="https://github.com/vaidii2008/Binless">GitHub</a>.</small></p>
+</section>
+{% endblock %}
