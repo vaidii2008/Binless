@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       DJANGO_SECRET_KEY: ci-only-not-a-real-secret
+      DATABASE_URL: postgres://binless:binless-ci@localhost:5432/binless
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -20,3 +21,17 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: python -m pytest
+    services:
+      db:
+        image: postgres:18
+        env:
+          POSTGRES_DB: binless
+          POSTGRES_USER: binless
+          POSTGRES_PASSWORD: binless-ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U binless"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
