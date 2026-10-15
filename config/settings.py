@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
-from .database import database_from_url
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+from .database import database_from_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
