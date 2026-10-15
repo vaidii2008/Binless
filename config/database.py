@@ -1,4 +1,3 @@
-
 """Build Django's database settings from a postgres:// connection URL."""
 
 from urllib.parse import parse_qsl, unquote, urlsplit

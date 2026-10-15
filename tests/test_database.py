@@ -1,4 +1,3 @@
-
 import pytest
 
 from config.database import database_from_url
