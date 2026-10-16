@@ -3,4 +3,6 @@
 pytest==9.1.1
 pytest-django==4.14.0
 ruff==0.16.10
+# Lets boto3 read the CLI's `aws login` credentials locally; Lambda uses its IAM role.
+botocore[crt]==1.43.109
 
