@@ -16,9 +16,12 @@ Resources:
         Variables:
           DJANGO_ALLOWED_HOSTS: !Sub ".execute-api.${AWS::Region}.amazonaws.com,127.0.0.1,localhost"
           DJANGO_SECRET_KEY_PARAMETER: /binless/django-secret-key
+          DATABASE_URL_PARAMETER: /binless/database-url
       Policies:
         - SSMParameterReadPolicy:
             ParameterName: binless/django-secret-key
+        - SSMParameterReadPolicy:
+            ParameterName: binless/database-url
       Events:
         Site:
           Type: HttpApi
@@ -32,3 +35,4 @@ Outputs:
   SiteUrl:
     Description: Public URL of the web app
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+

@@ -22,19 +22,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
-def _secret_key() -> str:
-    """Return the secret key from SSM Parameter Store on AWS, or from the environment."""
-    parameter = os.environ.get("DJANGO_SECRET_KEY_PARAMETER")
+def _env_or_ssm(name: str) -> str:
+    """Return a setting from SSM when NAME_PARAMETER is set, else from the environment."""
+    parameter = os.environ.get(f"{name}_PARAMETER")
     if not parameter:
-        return os.environ["DJANGO_SECRET_KEY"]
-    # Imported here so local runs, which read the key from .env, skip boto3's start-up time.
+        return os.environ[name]
+    # Imported here so local runs, which read settings from .env, skip boto3's start-up time.
     import boto3
 
     response = boto3.client("ssm").get_parameter(Name=parameter, WithDecryption=True)
     return response["Parameter"]["Value"]
 
 
-SECRET_KEY = _secret_key()
+SECRET_KEY = _env_or_ssm("DJANGO_SECRET_KEY")
 
 DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
 
@@ -88,8 +88,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# config/settings.py
-DATABASES = {"default": database_from_url(os.environ["DATABASE_URL"])}
+DATABASES = {"default": database_from_url(_env_or_ssm("DATABASE_URL"))}
+# Neon's pooled endpoint is PgBouncer in transaction mode, which can't keep a
+# server-side cursor open across transactions.
+DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
