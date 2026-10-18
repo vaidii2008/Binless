@@ -1,4 +1,3 @@
-
 from django.db import models
 
 
@@ -15,9 +14,11 @@ class Product(models.Model):
     category = models.CharField(max_length=50)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["store", "name"], name="unique_product_name")
-        ]
+        constraints = (
+            models.UniqueConstraint(
+                fields=["store", "name"], name="unique_product_name"
+            ),
+        )
 
     def __str__(self) -> str:
         return self.name
@@ -39,11 +40,11 @@ class Forecast(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=["product", "date"], name="one_forecast_per_product_day"
-            )
-        ]
+            ),
+        )
 
     def __str__(self) -> str:
         return f"{self.product} on {self.date}"
