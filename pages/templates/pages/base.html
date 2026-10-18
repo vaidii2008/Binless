@@ -7,12 +7,16 @@
   <title>{% block title %}Binless{% endblock %}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <script src="https://unpkg.com/htmx.org@2"></script>
+  {% block head %}{% endblock %}
 </head>
 <body>
   <header class="container">
     <nav>
       <ul><li><a href="{% url 'home' %}"><strong>Binless</strong></a></li></ul>
-      <ul><li><a href="{% url 'orders' %}">Tomorrow's order</a></li></ul>
+      <ul>
+        <li><a href="{% url 'orders' %}">Tomorrow's order</a></li>
+        <li><a href="{% url 'results' %}">Results</a></li>
+      </ul>
     </nav>
   </header>
   <main class="container">

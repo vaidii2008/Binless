@@ -1,9 +1,9 @@
-from datetime import date
-
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-from .snapshot import load_snapshot
+from orders.plans import latest_forecasts
+
+from . import results
 
 # The slider starts at "Balanced", the plain newsvendor rule.
 DEFAULT_BALANCE = 1
@@ -12,6 +12,19 @@ DEFAULT_BALANCE = 1
 def home(request: HttpRequest) -> HttpResponse:
     """Render the landing page."""
     return render(request, "pages/home.html")
+
+
+def results_page(request: HttpRequest) -> HttpResponse:
+    """Render the benchmark results with charts."""
+    return render(
+        request,
+        "pages/results.html",
+        {
+            "order_policies": results.ORDER_POLICIES,
+            "forecast_error": results.FORECAST_ERROR,
+            "held_out": results.HELD_OUT,
+        },
+    )
 
 
 def healthz(request: HttpRequest) -> HttpResponse:
@@ -30,22 +43,32 @@ def order_table(request: HttpRequest) -> HttpResponse:
 
 
 def _order_context(request: HttpRequest) -> dict:
-    """Return the snapshot with every product's order at the chosen slider position."""
-    snapshot = load_snapshot()
-    last_position = len(snapshot["balance_labels"]) - 1
+    """Return the latest forecasts with every product's order at the chosen slider position."""
+    forecasts = latest_forecasts()
+    if not forecasts:
+        return {"rows": []}
+    labels = [order["label"] for order in forecasts[0].orders]
+    last_position = len(labels) - 1
     try:
         position = int(request.GET.get("balance", DEFAULT_BALANCE))
     except ValueError:
         position = DEFAULT_BALANCE
     position = min(max(position, 0), last_position)
     return {
-        "store_name": snapshot["store_name"],
-        "order_date": date.fromisoformat(snapshot["date"]),
-        "label": snapshot["balance_labels"][position],
+        "store_name": forecasts[0].product.store.name,
+        "order_date": forecasts[0].date,
+        "label": labels[position],
         "position": position,
         "last_position": last_position,
         "rows": [
-            {**product, "order": product["orders"][position]}
-            for product in snapshot["products"]
+            {
+                "name": forecast.product.name,
+                "category": forecast.product.category,
+                "typical_day": round(forecast.quantiles["p50"]),
+                "busy_day": round(forecast.quantiles["p90"]),
+                "order": forecast.orders[position],
+                "reasons": forecast.reasons,
+            }
+            for forecast in forecasts
         ],
     }

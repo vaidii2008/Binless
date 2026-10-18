@@ -1,7 +1,7 @@
-
 {% extends "pages/base.html" %}
 {% block title %}Tomorrow's order | Binless{% endblock %}
 {% block content %}
+{% if rows %}
 <hgroup>
   <h1>Order for {{ order_date|date:"l j F" }}</h1>
   <p>{{ store_name }}. Every product and number on this page is simulated.</p>
@@ -16,4 +16,8 @@
 <div id="orders">
   {% include "pages/_order_table.html" %}
 </div>
+{% else %}
+<h1>Tomorrow's order</h1>
+<p>No forecast has been saved yet. The batch job writes tomorrow's order each night.</p>
+{% endif %}
 {% endblock %}
