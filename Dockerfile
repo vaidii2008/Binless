@@ -14,5 +14,25 @@ RUN pip install --no-cache-dir -r requirements/web.txt
 COPY manage.py ./
 COPY config config
 COPY pages pages
+COPY orders orders
 
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "0", "--no-control-socket"]
+
+# The batch image has no Web Adapter: Lambda calls the handler directly.
+FROM public.ecr.aws/lambda/python:3.12 AS batch
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    DJANGO_SETTINGS_MODULE=config.settings
+
+# LightGBM needs the OpenMP runtime, which the Lambda base image leaves out.
+RUN dnf install -y libgomp && dnf clean all
+COPY requirements/web.txt requirements/batch.txt requirements/
+RUN pip install --no-cache-dir -r requirements/web.txt -r requirements/batch.txt
+COPY manage.py ./
+COPY config config
+COPY pages pages
+COPY orders orders
+COPY forecasting forecasting
+COPY batch batch
+
+CMD ["batch.handler.handler"]

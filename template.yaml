@@ -1,22 +1,31 @@
-
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: Binless web app on AWS Lambda behind an HTTP API
+Description: Binless web app and nightly forecasting batch on AWS Lambda
+
+Parameters:
+  ModelVersion:
+    Type: String
+    Description: Folder under shop/ in the model bucket that the batch loads
+
+Globals:
+  Function:
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        DJANGO_SECRET_KEY_PARAMETER: /binless/django-secret-key
+        DATABASE_URL_PARAMETER: /binless/database-url
 
 Resources:
   WebFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      Architectures:
-        - arm64
       MemorySize: 1024
       Timeout: 30
       Environment:
         Variables:
           DJANGO_ALLOWED_HOSTS: !Sub ".execute-api.${AWS::Region}.amazonaws.com,127.0.0.1,localhost"
-          DJANGO_SECRET_KEY_PARAMETER: /binless/django-secret-key
-          DATABASE_URL_PARAMETER: /binless/database-url
       Policies:
         - SSMParameterReadPolicy:
             ParameterName: binless/django-secret-key
@@ -31,8 +40,54 @@ Resources:
       DockerTag: web
       DockerBuildTarget: web
 
+  ModelBucket:
+    Type: AWS::S3::Bucket
+    # Model files outlive the stack, so deleting it never loses a trained version.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  BatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 2048
+      Timeout: 300
+      Environment:
+        Variables:
+          MODEL_BUCKET: !Ref ModelBucket
+          MODEL_VERSION: !Ref ModelVersion
+      Policies:
+        - SSMParameterReadPolicy:
+            ParameterName: binless/django-secret-key
+        - SSMParameterReadPolicy:
+            ParameterName: binless/database-url
+        - S3ReadPolicy:
+            BucketName: !Ref ModelBucket
+      Events:
+        Nightly:
+          Type: ScheduleV2
+          Properties:
+            # 02:00 Dublin time, so the order page shows tomorrow's order all day.
+            ScheduleExpression: cron(0 2 * * ? *)
+            ScheduleExpressionTimezone: Europe/Dublin
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: batch
+      DockerBuildTarget: batch
+
 Outputs:
   SiteUrl:
     Description: Public URL of the web app
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
-
+  ModelBucketName:
+    Description: Bucket that holds the trained model files
+    Value: !Ref ModelBucket
