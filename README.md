@@ -6,6 +6,8 @@ Binless tells an independent grocer how much of each fresh product to order for 
 
 I'm building it as a portfolio project while learning Python. It's a work in progress, and this README describes what exists today.
 
+Live app: [a9lersj3kf.execute-api.eu-west-2.amazonaws.com](https://a9lersj3kf.execute-api.eu-west-2.amazonaws.com/). The order page is for Rowan Street Grocer, a simulated shop: every product and sale on it is invented, and its prices and costs are assumptions. The first visit after a quiet spell takes a few seconds while the server starts.
+
 ## Why
 
 Fresh food that isn't sold by its date is thrown away, and a product that sells out loses sales for the rest of the day. Binless gives a shop owner a forecast range for each product and turns it into an order quantity that weighs the cost of waste against the cost of an empty shelf.
@@ -57,22 +59,48 @@ The stockout correction divides each day's sales by the share of a normal day's 
 
 That figure is probably too high. Training LightGBM on corrected demand moved its bias against recorded sales from -2.5% to +14.5% and left it over-forecasting fully stocked days by 13.6%. In a different setup, the dataset's authors report a bias of +0.57% to +2.58% on stockout-free periods for their best model after learned demand recovery ([paper](https://arxiv.org/abs/2505.16319)). Splitting the hourly profiles into weekdays and weekends didn't change the estimate. The corrected model's median forecast wasted 21.2% and ran short on 34.5% of fully stocked days, between the recorded-sales model's median and 80th percentile, so Binless orders from the model trained on recorded sales.
 
+## How it works
+
+```mermaid
+flowchart LR
+    mac["My Mac: scripts/train_shop_models.py"] -- model files --> s3[("S3 model bucket")]
+    schedule["EventBridge Scheduler, 02:00 Dublin"] --> batch["Batch Lambda: simulate the shop, forecast, plan orders"]
+    s3 --> batch
+    batch -- one row per product for tomorrow --> db[("Neon Postgres")]
+    browser["Browser"] --> api["API Gateway"] --> web["Web Lambda: Django and HTMX"]
+    db --> web
+    ssm["SSM Parameter Store"] -. secret key and database URL .-> batch
+    ssm -.-> web
+```
+
+Each night the batch Lambda regenerates the simulated shop's history up to today, runs the trained LightGBM models on tomorrow's row for each product, and saves the forecast range, an order for each slider position and the top two reasons. The web Lambda only reads those rows: it never runs a model, so its image has no pandas or LightGBM, and a test fails if web code imports them. Both run the same Django and forecasting code as my laptop. Training happens on my Mac, and each trained version gets its own folder in S3.
+
+The order rule is the newsvendor critical ratio. For each category, the ratio of the margin lost on an empty shelf to the cost of a binned unit picks a point in the forecast range. The slider weights an empty shelf from half to four times the lost margin, for owners who worry about customers going elsewhere.
+
+More detail is in [docs/](docs/): the [model card](docs/model-card.md), [responsible AI notes](docs/responsible-ai.md), [requirements](docs/requirements.md) and [decision records](docs/decisions/).
+
 ## What works so far
 
-- A forecasting package in plain Python, with no Django imports, containing a FreshRetailNet-50K adapter, two baselines, WAPE and bias, leakage-safe features, LightGBM quantile models, the stockout correction, a newsvendor order rule and order outcomes.
-- 29 tests, run by GitHub Actions on every push, including one that fails if the forecasting package ever imports Django.
-- A Django web app with a health check.
-- An exploration notebook on the 50-store sample.
+- A forecasting package in plain Python, with no Django imports, containing a FreshRetailNet-50K adapter, two baselines, WAPE and bias, leakage-safe features, LightGBM quantile models, the stockout correction, a newsvendor order rule, order outcomes and a simulated shop.
+- A Django app with the order page and its slider, a results page with the benchmark charts, and a landing page, deployed on AWS Lambda.
+- A nightly batch Lambda that writes tomorrow's order for the simulated shop to Postgres.
+- 58 tests, run by GitHub Actions against Postgres on every push.
 
-## Planned
+## Limitations
 
-- A deployed demo for a simulated Irish shop, with cost assumptions per product category, labelled as simulated wherever it appears.
-- A test of the stockout correction against known demand in the simulated shop.
-- A learned demand recovery model, to compare with the simple stockout correction.
+- The live shop is simulated, and its history is regenerated on each nightly run, so yesterday's page and today's page don't describe one continuous history.
+- The shop's models are trained once and reused each night until I train and deploy a new version.
+- Prices and costs per category are my assumptions, not figures from any retailer.
+- The newsvendor rule assumes leftovers are thrown away at the end of the day. That fits bread and deli items and only approximates milk and fruit, which keep for a few days.
+- The median forecast under-forecasts by 10.13% on the held-out week, and the 80th and 90th percentiles cover less often than their names promise (76.8% and 86.7% of days in the backtest).
+- The stockout correction probably overstates lost demand, as described above.
+- The backtests use each day's actual weather, which a real forecast wouldn't know.
+- The reasons on the order page come from a second, mean-regression model trained on the same features, because LightGBM's per-feature contributions don't add up for quantile models.
+- I haven't yet tested the order page with a real shop owner.
 
 ## Run it locally
 
-Requires Python 3.12.
+Requires Python 3.12 and Docker. On macOS, LightGBM also needs `brew install libomp`.
 
 ```zsh
 python3.12 -m venv .venv
@@ -82,10 +110,14 @@ cp .env.example .env
 python -c "import secrets; print(secrets.token_urlsafe(50))"
 ```
 
-Paste the printed key into `.env` as `DJANGO_SECRET_KEY`, then:
+Paste the printed key into `.env` as `DJANGO_SECRET_KEY`. Then start Postgres, train the shop's models, write tomorrow's order and run the site:
 
 ```zsh
+docker compose up -d db
+python manage.py migrate
 python -m pytest
+python -m scripts.train_shop_models
+python manage.py forecast_orders --models models/shop/$(date +%F)
 python manage.py runserver
 ```
 
@@ -100,3 +132,5 @@ python -m scripts.benchmark
 ## Data
 
 The benchmark data is [FreshRetailNet-50K](https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K) by Dingdong-Inc, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The download script keeps a random subset of stores, and the adapter renames columns to Binless's own names. The dataset's IDs are encoded and its sales are normalised, so no product names from it appear anywhere in Binless.
+
+The simulated shop (`forecasting/simulation.py`) is generated by my own documented code. Its product names are invented, and none of its numbers come from a real shop.
