@@ -8,6 +8,10 @@ I'm building it as a portfolio project while learning Python. It's a work in pro
 
 Live app: [a9lersj3kf.execute-api.eu-west-2.amazonaws.com](https://a9lersj3kf.execute-api.eu-west-2.amazonaws.com/). The order page is for Rowan Street Grocer, a simulated shop: every product and sale on it is invented, and its prices and costs are assumptions. The first visit after a quiet spell takes a few seconds while the server starts.
 
+![The order page for the simulated shop, with the shelf balance slider moved from fewer leftovers to rarely run out and back](docs/images/order-page.gif)
+
+Moving the slider towards fuller shelves raises the orders and lowers each product's chance of selling out.
+
 ## Why
 
 Fresh food that isn't sold by its date is thrown away, and a product that sells out loses sales for the rest of the day. Binless gives a shop owner a forecast range for each product and turns it into an order quantity that weighs the cost of waste against the cost of an empty shelf.
@@ -83,8 +87,8 @@ More detail is in [docs/](docs/): the [model card](docs/model-card.md), [respons
 
 - A forecasting package in plain Python, with no Django imports, containing a FreshRetailNet-50K adapter, two baselines, WAPE and bias, leakage-safe features, LightGBM quantile models, the stockout correction, a newsvendor order rule, order outcomes and a simulated shop.
 - A Django app with the order page and its slider, a results page with the benchmark charts, and a landing page, deployed on AWS Lambda.
-- A nightly batch Lambda that writes tomorrow's order for the simulated shop to Postgres.
-- 58 tests, run by GitHub Actions against Postgres on every push.
+- A nightly batch Lambda that writes tomorrow's order for the simulated shop to Postgres. If it stops running, the order page says the saved order is out of date.
+- 63 tests, run by GitHub Actions against Postgres on every push.
 
 ## Limitations
 
