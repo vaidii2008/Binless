@@ -9,7 +9,10 @@
   </div>
   {% if preview %}
   <aside class="preview" aria-label="Part of tomorrow's order">
-    <p class="preview-title">Tomorrow, {{ order_date|date:"l j F" }}</p>
+    <p class="preview-title">{% if is_tomorrow %}Tomorrow, {% endif %}{{ order_date|date:"l j F" }}</p>
+    {% if out_of_date %}
+    <p class="stale">The nightly forecast hasn't run since this order was saved, so it's out of date.</p>
+    {% endif %}
     {% for row in preview %}
     <div class="preview-row">
       <div>

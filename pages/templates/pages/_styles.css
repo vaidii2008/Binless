@@ -223,6 +223,7 @@ input.tag::-webkit-inner-spin-button, input.tag::-webkit-outer-spin-button { -we
 .htmx-request #orders { opacity: 0.6; transition: opacity 120ms; }
 
 .empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 8px; padding: 2rem; }
+.stale { background: #fff3cd; border-left: 4px solid var(--tag-edge); padding: 0.7rem 1rem; max-width: none; }
 
 /* Results page */
 .finding { margin-top: 3.5rem; }

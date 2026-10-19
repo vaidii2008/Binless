@@ -22,6 +22,8 @@ The shop owner stays in charge of every order:
 - the slider lets the owner decide how much an empty shelf matters compared with waste, instead of the model deciding
 - each line shows the forecast range and the two strongest reasons behind it, so a surprising number can be checked against what the owner knows
 
+If the nightly forecast stops running, the order page and the home page say the saved order is out of date, so an old order is never presented as tomorrow's.
+
 Logging overrides and measuring how often recommendations are accepted is planned for Phase 2.
 
 ## Security

@@ -16,4 +16,4 @@ A nightly batch Lambda, scheduled by EventBridge Scheduler at 02:00 Dublin time,
 - Moving the slider is a database read, so it's fast.
 - The schema lives only in Django models, because the batch writes through the Django ORM.
 - Changing the slider positions means rerunning the batch, since the orders are precomputed.
-- If the batch fails, the page keeps showing the last saved day, which goes stale. An alarm on batch failures is planned for Phase 2.
+- If the batch fails, the page keeps showing the last saved day. Once that day has passed, the order page and the home page say the order is out of date. An alarm on batch failures is planned for Phase 2.

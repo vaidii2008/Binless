@@ -8,13 +8,16 @@
     <p class="for">Order for {{ store_name }}</p>
   </div>
 </div>
+{% if out_of_date %}
+<p class="stale">The nightly forecast hasn't run since this order was saved, so it's out of date.</p>
+{% endif %}
 <form class="balance" hx-get="{% url 'order_table' %}" hx-target="#orders" hx-trigger="input changed delay:150ms from:#balance" onsubmit="return false">
   <label for="balance">How much does an empty shelf matter to you?</label>
   <input type="range" id="balance" name="balance" min="0" max="{{ last_position }}" value="{{ position }}" step="1" aria-describedby="balance-help">
   <div class="balance-scale" aria-hidden="true">
     {% for name in labels %}<span>{{ name }}</span>{% endfor %}
   </div>
-  <p class="balance-now" id="balance-help">Ordering for <strong id="balance-label">{{ label }}</strong>. Moving right orders more, so you run out less often and bin more.</p>
+  <p class="balance-now" id="balance-help">Ordering for <strong id="balance-label">{{ label }}</strong>.<br>Moving right orders more, so you run out less often and bin more.</p>
 </form>
 <div id="orders" aria-live="polite">
   {% include "pages/_order_table.html" %}

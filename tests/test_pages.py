@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from orders.plans import save_plans
 
@@ -43,10 +44,37 @@ def test_home_links_to_tomorrows_order(client: Client) -> None:
     assert reverse("orders").encode() in response.content
 
 
-def test_home_previews_the_saved_order(client: Client, saved_plans: None) -> None:
+def test_home_previews_the_saved_order(
+    client: Client, saved_plans: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(timezone, "localdate", lambda: date(2026, 10, 19))
     response = client.get(reverse("home"))
     assert b"Tomorrow, Tuesday 20 October" in response.content
     assert len(response.context["preview"]) == 2
+
+
+@pytest.mark.parametrize(
+    ("today", "is_tomorrow", "out_of_date"),
+    [
+        (date(2026, 10, 19), True, False),
+        (date(2026, 10, 20), False, False),
+        (date(2026, 10, 21), False, True),
+    ],
+)
+def test_pages_compare_the_order_date_with_today(
+    client: Client,
+    saved_plans: None,
+    monkeypatch: pytest.MonkeyPatch,
+    today: date,
+    is_tomorrow: bool,
+    out_of_date: bool,
+) -> None:
+    monkeypatch.setattr(timezone, "localdate", lambda: today)
+    home = client.get(reverse("home"))
+    orders = client.get(reverse("orders"))
+    assert (b"Tomorrow, Tuesday 20 October" in home.content) is is_tomorrow
+    assert (b"out of date" in home.content) is out_of_date
+    assert (b"out of date" in orders.content) is out_of_date
 
 
 def test_slider_response_updates_the_balance_label(

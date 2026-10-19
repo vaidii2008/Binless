@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
 
 from orders.plans import latest_forecasts
 
@@ -62,9 +65,14 @@ def _order_context(request: HttpRequest) -> dict:
     except ValueError:
         position = DEFAULT_BALANCE
     position = min(max(position, 0), last_position)
+    order_date = forecasts[0].date
+    today = timezone.localdate()
     return {
         "store_name": forecasts[0].product.store.name,
-        "order_date": forecasts[0].date,
+        "order_date": order_date,
+        "is_tomorrow": order_date == today + timedelta(days=1),
+        # The batch saves tomorrow's order each night, so a past date means it stopped.
+        "out_of_date": order_date < today,
         "labels": labels,
         "label": labels[position],
         "position": position,
