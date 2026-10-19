@@ -2,22 +2,28 @@
 {% block title %}Tomorrow's order | Binless{% endblock %}
 {% block content %}
 {% if rows %}
-<hgroup>
-  <h1>Order for {{ order_date|date:"l j F" }}</h1>
-  <p>{{ store_name }}. Every product and number on this page is simulated.</p>
-</hgroup>
-<label for="balance">
-  How much does an empty shelf matter to you?
-  <input type="range" id="balance" name="balance"
-         min="0" max="{{ last_position }}" value="{{ position }}"
-         hx-get="{% url 'order_table' %}" hx-target="#orders"
-         hx-trigger="input changed delay:150ms">
-</label>
-<div id="orders">
+<div class="order-head">
+  <div>
+    <h1>{{ order_date|date:"l j F" }}</h1>
+    <p class="for">Order for {{ store_name }}</p>
+  </div>
+</div>
+<form class="balance" hx-get="{% url 'order_table' %}" hx-target="#orders" hx-trigger="input changed delay:150ms from:#balance" onsubmit="return false">
+  <label for="balance">How much does an empty shelf matter to you?</label>
+  <input type="range" id="balance" name="balance" min="0" max="{{ last_position }}" value="{{ position }}" step="1" aria-describedby="balance-help">
+  <div class="balance-scale" aria-hidden="true">
+    {% for name in labels %}<span>{{ name }}</span>{% endfor %}
+  </div>
+  <p class="balance-now" id="balance-help">Ordering for <strong id="balance-label">{{ label }}</strong>. Moving right orders more, so you run out less often and bin more.</p>
+</form>
+<div id="orders" aria-live="polite">
   {% include "pages/_order_table.html" %}
 </div>
+<p class="small">The order quantities are suggestions you can change. Typical and busy days are the 50th and 90th percentiles of the forecast.</p>
 {% else %}
 <h1>Tomorrow's order</h1>
-<p>No forecast has been saved yet. The batch job writes tomorrow's order each night.</p>
+<div class="empty">
+  <p>No forecast has been saved yet. The batch job writes tomorrow's order each night.</p>
+</div>
 {% endif %}
 {% endblock %}

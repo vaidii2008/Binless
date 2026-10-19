@@ -10,8 +10,14 @@ DEFAULT_BALANCE = 1
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    """Render the landing page."""
-    return render(request, "pages/home.html")
+    """Render the landing page with a few lines from tomorrow's order."""
+    context = _order_context(request)
+    rows = context.get("rows", [])
+    return render(
+        request,
+        "pages/home.html",
+        {**context, "preview": rows[:3], "product_count": len(rows)},
+    )
 
 
 def results_page(request: HttpRequest) -> HttpResponse:
@@ -39,7 +45,9 @@ def orders(request: HttpRequest) -> HttpResponse:
 
 def order_table(request: HttpRequest) -> HttpResponse:
     """Render only the order table, for the slider to swap in."""
-    return render(request, "pages/_order_table.html", _order_context(request))
+    return render(
+        request, "pages/_order_table.html", {**_order_context(request), "partial": True}
+    )
 
 
 def _order_context(request: HttpRequest) -> dict:
@@ -57,6 +65,7 @@ def _order_context(request: HttpRequest) -> dict:
     return {
         "store_name": forecasts[0].product.store.name,
         "order_date": forecasts[0].date,
+        "labels": labels,
         "label": labels[position],
         "position": position,
         "last_position": last_position,

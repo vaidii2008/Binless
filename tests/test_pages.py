@@ -36,10 +36,24 @@ def saved_plans(db) -> None:
     )
 
 
+@pytest.mark.django_db
 def test_home_links_to_tomorrows_order(client: Client) -> None:
     response = client.get(reverse("home"))
     assert response.status_code == 200
     assert reverse("orders").encode() in response.content
+
+
+def test_home_previews_the_saved_order(client: Client, saved_plans: None) -> None:
+    response = client.get(reverse("home"))
+    assert b"Tomorrow, Tuesday 20 October" in response.content
+    assert len(response.context["preview"]) == 2
+
+
+def test_slider_response_updates_the_balance_label(
+    client: Client, saved_plans: None
+) -> None:
+    response = client.get(reverse("order_table"), {"balance": 3})
+    assert b'hx-swap-oob="innerHTML:#balance-label">Rarely run out' in response.content
 
 
 def test_healthz_returns_ok(client: Client) -> None:

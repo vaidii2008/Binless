@@ -1,28 +1,30 @@
-
-<p><strong>{{ label }}</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Product</th>
-      <th>Order</th>
-      <th>Sales on a typical / busy day</th>
-      <th>Chance of selling out</th>
-      <th>Why</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for row in rows %}
-    <tr>
-      <td>{{ row.name }}<br><small>{{ row.category }}</small></td>
-      <td><input type="number" min="0" value="{{ row.order.units }}" aria-label="Order for {{ row.name }}"></td>
-      <td>{{ row.typical_day }} / {{ row.busy_day }}</td>
-      <td>{{ row.order.sell_out_chance }}%</td>
-      <td>
-        {% for reason in row.reasons %}
-          {% if reason.direction == "up" %}▲{% else %}▼{% endif %} {{ reason.text }}<br>
-        {% endfor %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% regroup rows by category as categories %}
+{% for category in categories %}
+<section class="category {{ category.grouper|lower }}">
+  <h2 class="category-name">{{ category.grouper }}</h2>
+  <table class="order-list">
+    <colgroup><col class="col-product"><col class="col-order"><col class="col-range"><col class="col-chance"><col></colgroup>
+    <thead>
+      <tr><th scope="col">Product</th><th scope="col">Order</th><th scope="col">Expected sales</th><th scope="col">Chance of selling out</th><th scope="col">Why</th></tr>
+    </thead>
+    <tbody>
+      {% for row in category.list %}
+      <tr>
+        <td class="product">{{ row.name }}</td>
+        <td class="order"><input class="tag" type="number" min="0" value="{{ row.order.units }}" aria-label="Order for {{ row.name }}"></td>
+        <td class="range">{{ row.typical_day }} to {{ row.busy_day }}<small>typical to busy day</small></td>
+        <td class="chance">{{ row.order.sell_out_chance }}%<small>sell-out chance</small></td>
+        <td class="why">
+          <ul class="reasons">
+            {% for reason in row.reasons %}
+            <li><span class="arrow" aria-hidden="true">{% if reason.direction == "up" %}▲{% else %}▼{% endif %}</span>{{ reason.text }}<span class="visually-hidden">{% if reason.direction == "up" %}, raises the forecast{% else %}, lowers the forecast{% endif %}</span></li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endfor %}
+{% if partial %}<span hx-swap-oob="innerHTML:#balance-label">{{ label }}</span>{% endif %}

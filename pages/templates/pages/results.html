@@ -1,24 +1,19 @@
 {% extends "pages/base.html" %}
 {% block title %}Results | Binless{% endblock %}
 {% block head %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-<style>
-  .chart { position: relative; height: 320px; }
-</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 {% endblock %}
 {% block content %}
-<hgroup>
-  <h1>Results</h1>
-  <p>These figures come from a public dataset of real fresh-food sales, not from the simulated shop on the order page.</p>
-</hgroup>
+<h1>Results</h1>
+<p class="lede">These figures come from a public dataset of real fresh-food sales, not from the simulated shop on the order page.</p>
 
-<section>
+<section class="finding">
   <h2>Ordering from the forecast wastes less</h2>
   <p>Over the last four weeks of a 50-store sample, ordering Binless's median forecast instead of last week's sales cut waste from 20.6% to 14.6% of what was ordered and served more of the demand. Ordering higher up the forecast range, at the 80th or 90th percentile, runs short on far fewer days at the cost of more waste. The order page's slider is that trade-off.</p>
   <div class="chart"><canvas id="orders-chart" role="img" aria-label="Waste and days that ran short for each ordering policy"></canvas></div>
   <details>
     <summary>Show the table</summary>
-    <table>
+    <table class="data-table">
       <thead><tr><th>Policy</th><th>Waste</th><th>Days that ran short</th><th>Demand served</th></tr></thead>
       <tbody>
         {% for row in order_policies %}
@@ -30,13 +25,13 @@
   <p><small>Fully stocked days only, where demand equals recorded sales. Waste is unsold units as a share of units ordered.</small></p>
 </section>
 
-<section>
+<section class="finding">
   <h2>The forecast is more accurate than simple rules</h2>
   <p>Forecast error over the same four weeks, measured as total absolute error divided by total sales (WAPE). Lower is better.</p>
-  <div class="chart"><canvas id="error-chart" role="img" aria-label="Forecast error for each method"></canvas></div>
+  <div class="chart chart-short"><canvas id="error-chart" role="img" aria-label="Forecast error for each method"></canvas></div>
   <details>
     <summary>Show the table</summary>
-    <table>
+    <table class="data-table">
       <thead><tr><th>Method</th><th>WAPE</th></tr></thead>
       <tbody>
         {% for row in forecast_error %}
@@ -47,13 +42,13 @@
   </details>
 </section>
 
-<section>
+<section class="finding">
   <h2>It matches published models on a held-out week</h2>
   <p>On the dataset's evaluation week across all 898 stores, scored the way the dataset's authors score their models, Binless's error is in line with their models trained on recorded sales. Their best model, trained on demand recovered by a learned model, is 2.55 points better. I didn't rerun their code: their figures come from their paper.</p>
   <div class="chart"><canvas id="holdout-chart" role="img" aria-label="Held-out forecast error for my models and the dataset authors' models"></canvas></div>
   <details>
     <summary>Show the table</summary>
-    <table>
+    <table class="data-table">
       <thead><tr><th>Model</th><th>By</th><th>WAPE</th></tr></thead>
       <tbody>
         {% for row in held_out %}
@@ -71,18 +66,15 @@
 {{ held_out|json_script:"held-out" }}
 <script>
   const read = (id) => JSON.parse(document.getElementById(id).textContent);
-  const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const blue = dark ? "#3987e5" : "#2a78d6";
-  const orange = dark ? "#d95926" : "#eb6834";
-  Chart.defaults.color = dark ? "#c3c2b7" : "#52514e";
-  Chart.defaults.borderColor = dark ? "#33332f" : "#e4e2dc";
+  const blue = "#2a78d6";
+  const orange = "#eb6834";
+  Chart.defaults.color = "#4d5f57";
+  Chart.defaults.borderColor = "#e3e8e2";
+  Chart.defaults.font.family = '"Public Sans", system-ui, sans-serif';
+  Chart.defaults.font.size = 13;
   const percent = { ticks: { callback: (value) => `${value}%` }, beginAtZero: true };
   const bar = { borderRadius: 4, borderSkipped: "start", maxBarThickness: 36 };
-  const options = {
-    maintainAspectRatio: false,
-    scales: { y: percent },
-    plugins: { tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y}%` } } },
-  };
+  const tooltip = (axis) => ({ callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed[axis]}%` } });
 
   const policies = read("order-policies");
   new Chart(document.getElementById("orders-chart"), {
@@ -94,34 +86,38 @@
         { label: "Days that ran short", data: policies.map((row) => row.short), backgroundColor: orange, ...bar },
       ],
     },
-    options,
+    options: {
+      maintainAspectRatio: false,
+      scales: { y: percent, x: { grid: { display: false } } },
+      plugins: { tooltip: tooltip("y") },
+    },
   });
 
-  const errors = read("forecast-error");
-  new Chart(document.getElementById("error-chart"), {
+  // Horizontal bars keep long method names readable without rotating them.
+  const horizontal = (canvasId, rows, datasets, showLegend) => new Chart(document.getElementById(canvasId), {
     type: "bar",
-    data: {
-      labels: errors.map((row) => row.method),
-      datasets: [{ label: "WAPE", data: errors.map((row) => row.wape), backgroundColor: blue, ...bar }],
+    data: { labels: rows.map((row) => row.label), datasets },
+    options: {
+      indexAxis: "y",
+      maintainAspectRatio: false,
+      scales: { x: percent, y: { grid: { display: false } } },
+      plugins: { legend: { display: showLegend }, tooltip: tooltip("x") },
     },
-    options: { ...options, plugins: { ...options.plugins, legend: { display: false } } },
   });
 
-  const heldOut = read("held-out");
-  new Chart(document.getElementById("holdout-chart"), {
-    type: "bar",
-    data: {
-      labels: heldOut.map((row) => row.model),
-      datasets: ["Mine", "Dataset authors"].map((by) => ({
-        label: by,
-        data: heldOut.map((row) => (row.by === by ? row.wape : null)),
-        backgroundColor: by === "Mine" ? blue : orange,
-        skipNull: true,
-        grouped: false,
-        ...bar,
-      })),
-    },
-    options,
-  });
+  const errors = read("forecast-error").map((row) => ({ label: row.method, ...row }));
+  horizontal("error-chart", errors, [
+    { label: "WAPE", data: errors.map((row) => row.wape), backgroundColor: blue, ...bar },
+  ], false);
+
+  const heldOut = read("held-out").map((row) => ({ label: row.model, ...row }));
+  horizontal("holdout-chart", heldOut, ["Mine", "Dataset authors"].map((by) => ({
+    label: by,
+    data: heldOut.map((row) => (row.by === by ? row.wape : null)),
+    backgroundColor: by === "Mine" ? blue : orange,
+    skipNull: true,
+    grouped: false,
+    ...bar,
+  })), true);
 </script>
 {% endblock %}

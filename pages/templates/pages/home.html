@@ -1,23 +1,64 @@
-
 {% extends "pages/base.html" %}
 {% block title %}Binless: fresh-food ordering for independent grocers{% endblock %}
 {% block content %}
-<section>
-  <hgroup>
-    <h1>How much fresh food should you order for tomorrow?</h1>
-    <p>Binless forecasts each product's sales as a range, turns that range into an order that weighs the cost of waste against the cost of an empty shelf, and explains each line in plain English.</p>
-  </hgroup>
-  <a href="{% url 'orders' %}" role="button">See tomorrow's order</a>
+<section class="hero">
+  <div>
+    <h1>Order the fresh food you'll sell tomorrow, not the food you'll bin.</h1>
+    <p class="lede">Binless forecasts each product's sales as a range, turns that range into an order that weighs the cost of waste against the cost of an empty shelf, and says why in plain English.</p>
+    <a class="button" href="{% url 'orders' %}">See tomorrow's order</a>
+  </div>
+  {% if preview %}
+  <aside class="preview" aria-label="Part of tomorrow's order">
+    <p class="preview-title">Tomorrow, {{ order_date|date:"l j F" }}</p>
+    {% for row in preview %}
+    <div class="preview-row">
+      <div>
+        {{ row.name }}
+        <small>{% for reason in row.reasons|slice:":1" %}{{ reason.text }}{% endfor %}</small>
+      </div>
+      <span class="tag">{{ row.order.units }}</span>
+    </div>
+    {% endfor %}
+    <p class="preview-foot">{{ product_count }} products in today's list for {{ store_name }}.</p>
+  </aside>
+  {% endif %}
 </section>
 
-<section>
-  <h2>What it found</h2>
-  <ul>
-    <li>In a four-week test on 50 stores, ordering from Binless's forecast instead of reordering last week's sales cut waste by about 30% and served more of the demand.</li>
-    <li>On the dataset's held-out week across all 898 stores, its forecast error matched the dataset authors' published models: 31.6%, against 31.6% to 32.0%.</li>
-  </ul>
-  <p><a href="{% url 'results' %}">See the full results</a></p>
-  <p>On 44% of store-product days a product sold out at some point, so sales records understate what customers wanted. That's why the order page lets you choose how much an empty shelf matters.</p>
-  <p><small>Results come from <a href="https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K">FreshRetailNet-50K</a>, a public dataset of fresh-food sales (CC BY 4.0). The method, code and the command behind every number are on <a href="https://github.com/vaidii2008/Binless">GitHub</a>.</small></p>
+<section class="section">
+  <h2>Less waste than reordering last week's sales</h2>
+  <p>Over four weeks of real sales from 50 stores, ordering Binless's median forecast left less unsold stock and served more of the demand.</p>
+  <div class="compare" role="img" aria-label="Waste as a share of units ordered: 20.6% when reordering last week's sales, 14.6% with Binless">
+    <div class="compare-row">
+      <span>Reorder last week's sales</span>
+      <div class="bar bar-baseline" style="width: 100%">20.6% wasted</div>
+    </div>
+    <div class="compare-row">
+      <span>Order Binless's median forecast</span>
+      <div class="bar bar-binless" style="width: 70.9%">14.6% wasted</div>
+    </div>
+  </div>
+  <p class="small">Fully stocked days only, where demand equals recorded sales. Waste is unsold units as a share of units ordered. On the dataset's held-out week across all 898 stores, the forecast error matched the dataset authors' published models: 31.6%, against their 31.6% to 32.0%. <a href="{% url 'results' %}">See the full results</a>.</p>
+</section>
+
+<section class="section">
+  <h2>How it decides</h2>
+  <ol class="steps">
+    <li>
+      <span class="step-number">1</span>
+      <h3>Forecast a range</h3>
+      <p>A model trained on past sales, promotions, bank holidays and the weather gives a likely range for each product, not one number.</p>
+    </li>
+    <li>
+      <span class="step-number">2</span>
+      <h3>Weigh waste against empty shelves</h3>
+      <p>The margin you lose on an empty shelf and the cost of a binned item set where in that range to order. You choose how much an empty shelf matters.</p>
+    </li>
+    <li>
+      <span class="step-number">3</span>
+      <h3>Explain each line</h3>
+      <p>Each order shows the two things that moved its forecast most, such as a promotion or the day of the week, so you can overrule it when you know better.</p>
+    </li>
+  </ol>
+  <p class="small">On 44% of store-product days in the data, a product sold out at some point, so sales records understate what customers wanted. That's why you can choose how much an empty shelf matters.</p>
 </section>
 {% endblock %}

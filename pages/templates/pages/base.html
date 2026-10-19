@@ -1,29 +1,40 @@
-
 <!doctype html>
 <html lang="en-IE">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Binless{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-  <script src="https://unpkg.com/htmx.org@2"></script>
+  <meta name="description" content="Binless forecasts how much fresh food an independent grocer should order for tomorrow, and explains why.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;700&display=swap">
+  <style>{% include "pages/_styles.css" %}</style>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   {% block head %}{% endblock %}
 </head>
 <body>
-  <header class="container">
-    <nav>
-      <ul><li><a href="{% url 'home' %}"><strong>Binless</strong></a></li></ul>
-      <ul>
-        <li><a href="{% url 'orders' %}">Tomorrow's order</a></li>
-        <li><a href="{% url 'results' %}">Results</a></li>
-      </ul>
-    </nav>
+  {% with page=request.resolver_match.url_name %}
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="{% url 'home' %}">Binless</a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="{% url 'orders' %}"{% if page == "orders" %} aria-current="page"{% endif %}>Tomorrow's order</a>
+        <a href="{% url 'results' %}"{% if page == "results" %} aria-current="page"{% endif %}>Results</a>
+        <a href="https://github.com/vaidii2008/Binless">Code</a>
+      </nav>
+    </div>
   </header>
-  <main class="container">
+  {% endwith %}
+  <div class="notice">
+    <div class="wrap">Rowan Street Grocer is a simulated shop. Its products and sales are invented, and prices and costs in euro are assumptions.</div>
+  </div>
+  <main class="wrap">
     {% block content %}{% endblock %}
   </main>
-  <footer class="container">
-    <small>The shop and all its sales are simulated. Prices and costs in euro are assumptions.</small>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Benchmark results use <a href="https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K">FreshRetailNet-50K</a> by Dingdong-Inc (CC BY 4.0). Built by Vaidhyam Gautam. <a href="https://github.com/vaidii2008/Binless">Source code on GitHub</a>.</p>
+    </div>
   </footer>
 </body>
 </html>
