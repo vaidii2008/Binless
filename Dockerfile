@@ -15,6 +15,8 @@ COPY manage.py ./
 COPY config config
 COPY pages pages
 COPY orders orders
+# Lambda runs the code as a non-root user, so every file must be readable by all users.
+RUN chmod -R a+rX /app
 
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "0", "--no-control-socket"]
 
@@ -34,5 +36,6 @@ COPY pages pages
 COPY orders orders
 COPY forecasting forecasting
 COPY batch batch
+RUN chmod -R a+rX /var/task
 
 CMD ["batch.handler.handler"]

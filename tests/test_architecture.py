@@ -41,7 +41,7 @@ def test_web_code_never_imports_the_forecasting_stack() -> None:
 def test_web_image_can_load_irish_time_without_a_system_time_zone_database() -> None:
     web_requirements = (ROOT / "requirements" / "web.txt").read_text().splitlines()
     assert any(line.startswith("tzdata==") for line in web_requirements)
-    # An empty PYTHONTZPATH hides the system database, as on the slim web image.
+    # An empty PYTHONTZPATH hides any system database, so Irish time must come from tzdata.
     result = subprocess.run(
         [
             sys.executable,
