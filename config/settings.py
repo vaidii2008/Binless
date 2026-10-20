@@ -118,8 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-# The shop is in Ireland, so "today" and "tomorrow" follow Irish time.
-TIME_ZONE = "Europe/Dublin"
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 

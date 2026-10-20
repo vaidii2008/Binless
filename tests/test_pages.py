@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import UTC, date, datetime
 
 import pytest
 from django.test import Client
@@ -47,29 +47,31 @@ def test_home_links_to_tomorrows_order(client: Client) -> None:
 def test_home_previews_the_saved_order(
     client: Client, saved_plans: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(timezone, "localdate", lambda: date(2026, 10, 19))
+    monkeypatch.setattr(timezone, "now", lambda: datetime(2026, 10, 19, 12, tzinfo=UTC))
     response = client.get(reverse("home"))
     assert b"Tomorrow, Tuesday 20 October" in response.content
     assert len(response.context["preview"]) == 2
 
 
 @pytest.mark.parametrize(
-    ("today", "is_tomorrow", "out_of_date"),
+    ("now", "is_tomorrow", "out_of_date"),
     [
-        (date(2026, 10, 19), True, False),
-        (date(2026, 10, 20), False, False),
-        (date(2026, 10, 21), False, True),
+        (datetime(2026, 10, 19, 12, tzinfo=UTC), True, False),
+        # 23:30 UTC is already 00:30 on 20 October in Dublin.
+        (datetime(2026, 10, 19, 23, 30, tzinfo=UTC), False, False),
+        (datetime(2026, 10, 20, 12, tzinfo=UTC), False, False),
+        (datetime(2026, 10, 21, 12, tzinfo=UTC), False, True),
     ],
 )
-def test_pages_compare_the_order_date_with_today(
+def test_pages_compare_the_order_date_with_today_in_ireland(
     client: Client,
     saved_plans: None,
     monkeypatch: pytest.MonkeyPatch,
-    today: date,
+    now: datetime,
     is_tomorrow: bool,
     out_of_date: bool,
 ) -> None:
-    monkeypatch.setattr(timezone, "localdate", lambda: today)
+    monkeypatch.setattr(timezone, "now", lambda: now)
     home = client.get(reverse("home"))
     orders = client.get(reverse("orders"))
     assert (b"Tomorrow, Tuesday 20 October" in home.content) is is_tomorrow

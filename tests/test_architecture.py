@@ -1,3 +1,6 @@
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,3 +36,21 @@ def test_web_code_never_imports_the_forecasting_stack() -> None:
         source = path.read_text()
         for module in BATCH_ONLY_IMPORTS:
             assert not _imports(source, module), f"{path} imports {module}"
+
+
+def test_web_image_can_load_irish_time_without_a_system_time_zone_database() -> None:
+    web_requirements = (ROOT / "requirements" / "web.txt").read_text().splitlines()
+    assert any(line.startswith("tzdata==") for line in web_requirements)
+    # An empty PYTHONTZPATH hides the system database, as on the slim web image.
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from zoneinfo import ZoneInfo; ZoneInfo('Europe/Dublin')",
+        ],
+        env={**os.environ, "PYTHONTZPATH": ""},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr

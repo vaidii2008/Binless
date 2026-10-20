@@ -1,4 +1,5 @@
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -10,6 +11,8 @@ from . import results
 
 # The slider starts at "Balanced", the plain newsvendor rule.
 DEFAULT_BALANCE = 1
+# The shop is in Ireland, so its "today" and "tomorrow" follow Irish time.
+SHOP_TIME_ZONE = "Europe/Dublin"
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -66,7 +69,8 @@ def _order_context(request: HttpRequest) -> dict:
         position = DEFAULT_BALANCE
     position = min(max(position, 0), last_position)
     order_date = forecasts[0].date
-    today = timezone.localdate()
+    # Looked up here, not at import, so missing time zone data can't take down /healthz.
+    today = timezone.localdate(timezone=ZoneInfo(SHOP_TIME_ZONE))
     return {
         "store_name": forecasts[0].product.store.name,
         "order_date": order_date,
