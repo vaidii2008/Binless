@@ -88,7 +88,7 @@ More detail is in [docs/](docs/): the [model card](docs/model-card.md), [respons
 - A forecasting package in plain Python, with no Django imports, containing a FreshRetailNet-50K adapter, two baselines, WAPE and bias, leakage-safe features, LightGBM quantile models, the stockout correction, a newsvendor order rule, order outcomes and a simulated shop.
 - A Django app with the order page and its slider, a results page with the benchmark charts, and a landing page, deployed on AWS Lambda.
 - A nightly batch Lambda that writes tomorrow's order for the simulated shop to Postgres. If it stops running, the order page says the saved order is out of date.
-- 63 tests, run by GitHub Actions against Postgres on every push.
+- 65 tests, run by GitHub Actions against Postgres on every push.
 
 ## Limitations
 
