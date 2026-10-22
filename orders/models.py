@@ -5,6 +5,8 @@ from accounts.models import OrganisationOwned
 
 class Store(OrganisationOwned):
     name = models.CharField(max_length=100)
+    # Runs on the simulated sales, which the nightly batch forecasts for every such shop.
+    is_simulated = models.BooleanField(default=False)
 
     class Meta:
         constraints = (

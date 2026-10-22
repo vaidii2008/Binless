@@ -87,8 +87,34 @@ main { padding-block: 3rem 4rem; }
   text-decoration: none;
 }
 .button:hover { background: #0f241f; text-decoration: none; }
+button.button { border: 0; cursor: pointer; }
+.button-quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.button-quiet:hover { background: var(--page); }
+.button-danger { background: #a3222b; }
+.button-danger:hover { background: #821b22; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 
 .lede { font-size: 1.2rem; color: var(--ink-soft); }
+
+/* Accounts */
+.nav-form { margin: 0; }
+.nav-form button { background: none; border: 0; border-bottom: 3px solid transparent; color: #fff; font: inherit; padding: 0.4rem 0; cursor: pointer; }
+.nav-form button:hover { border-bottom-color: var(--tag); }
+.messages p { background: var(--surface); border-left: 4px solid var(--ink); padding: 0.7rem 1rem; margin: 0 0 1.5rem; max-width: none; }
+.account-box { max-width: 30rem; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1.75rem; }
+.account-box h1 { font-size: clamp(2.2rem, 5vw, 3rem); }
+.field { margin-bottom: 1.1rem; }
+.field label { display: block; font-weight: 700; margin-bottom: 0.35rem; }
+.field input[type="email"], .field input[type="password"], .field input[type="text"] { width: 100%; font: inherit; padding: 0.65rem 0.75rem; border: 1px solid var(--ink-soft); border-radius: 6px; background: #fff; color: var(--ink); }
+.field-check { display: flex; align-items: center; gap: 0.5rem; }
+.field-check label { display: inline; font-weight: 400; margin: 0; }
+.help { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.4rem; }
+.help ul { padding-left: 1.2rem; margin: 0; }
+.errorlist { list-style: none; padding: 0; margin: 0.35rem 0 0; color: #a3222b; font-size: 0.92rem; }
+.shop-list { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.75rem; max-width: 40rem; }
+.shop-list li { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--tag-edge); border-radius: 6px; padding: 1rem 1.25rem; }
+.shop-list a { font: 700 1.5rem/1.1 var(--display); }
+.shop-list small { display: block; color: var(--ink-soft); }
 
 /* Shelf-edge tag: the order quantity, styled like the label on a shop shelf. */
 .tag {

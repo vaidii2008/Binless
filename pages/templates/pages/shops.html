@@ -1,0 +1,18 @@
+{% extends "pages/base.html" %}
+{% block title %}Your shops | Binless{% endblock %}
+{% block content %}
+<h1>Your shops</h1>
+<p class="lede">Signed in as {{ user.email }}</p>
+<ul class="shop-list">
+  {% for store in stores %}
+  <li>
+    <a href="{% url 'shop_orders' store.pk %}">{{ store.name }}</a>
+    <small>Tomorrow's order, with the shelf balance slider</small>
+  </li>
+  {% empty %}
+  <li>You don't have a shop yet.</li>
+  {% endfor %}
+</ul>
+<p class="small">Your shop runs on the same simulated sales as the public sample, and the nightly forecast refreshes it. No other member can see it. Uploading your own sales history is the next feature.</p>
+<p class="small"><a href="{% url 'delete_account' %}">Delete your account</a> to remove your email address, your organisation and its shops.</p>
+{% endblock %}

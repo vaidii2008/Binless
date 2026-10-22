@@ -5,7 +5,14 @@
   <div>
     <h1>Order the fresh food you'll sell tomorrow, not the food you'll bin.</h1>
     <p class="lede">Binless forecasts each product's sales as a range, turns that range into an order that weighs the cost of waste against the cost of an empty shelf, and says why in plain English.</p>
-    <a class="button" href="{% url 'orders' %}">See tomorrow's order</a>
+    <div class="actions">
+      <a class="button" href="{% url 'orders' %}">See tomorrow's order</a>
+      {% if user.is_authenticated %}
+      <a class="button button-quiet" href="{% url 'shops' %}">Go to your shops</a>
+      {% else %}
+      <a class="button button-quiet" href="{% url 'account_signup' %}">Try it with your own shop</a>
+      {% endif %}
+    </div>
   </div>
   {% if preview %}
   <aside class="preview" aria-label="Part of tomorrow's order">

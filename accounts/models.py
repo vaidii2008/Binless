@@ -6,6 +6,11 @@ from django.db import models
 SAMPLE_ORGANISATION_NAME = "Sample organisation (simulated)"
 
 
+def email_of(user) -> str:
+    """Return the email address members sign in with, to show in messages."""
+    return user.email
+
+
 class Organisation(models.Model):
     """A business that owns one or more shops."""
 

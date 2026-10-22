@@ -1,0 +1,13 @@
+{% extends "pages/base.html" %}
+{% block title %}Delete your account | Binless{% endblock %}
+{% block content %}
+<div class="account-box">
+  <h1>Delete your account</h1>
+  <p>This deletes your account ({{ user.email }}), your organisation and its shops straight away. It can't be undone.</p>
+  <form class="actions" method="post" action="{% url 'delete_account' %}">
+    {% csrf_token %}
+    <button class="button button-danger" type="submit">Delete my account</button>
+    <a class="button button-quiet" href="{% url 'shops' %}">Keep it</a>
+  </form>
+</div>
+{% endblock %}

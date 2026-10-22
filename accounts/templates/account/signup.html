@@ -1,0 +1,25 @@
+{% extends "pages/base.html" %}
+{% block title %}Create an account | Binless{% endblock %}
+{% block content %}
+<div class="account-box">
+  <h1>Create an account</h1>
+  <p>You get your own organisation with a simulated shop, so you can use the order page as its owner.</p>
+  <form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form.visible_fields %}
+    <div class="field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+    {{ redirect_field }}
+    <button class="button" type="submit">Create account</button>
+  </form>
+  <p class="small">Binless keeps your email address and a hashed password, only to sign you in, and never shares them. You can delete your account at any time.</p>
+  <p>Already have an account? <a href="{% url 'account_login' %}">Sign in</a>.</p>
+</div>
+{% endblock %}

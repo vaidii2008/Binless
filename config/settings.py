@@ -34,13 +34,21 @@ def _env_or_ssm(name: str) -> str:
     return response["Parameter"]["Value"]
 
 
+def _env_list(name: str) -> list[str]:
+    """Return a comma-separated environment variable as a list, skipping blanks."""
+    return [item for item in os.environ.get(name, "").split(",") if item]
+
+
 SECRET_KEY = _env_or_ssm("DJANGO_SECRET_KEY")
 
 DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
 
-ALLOWED_HOSTS = [
-    host for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if host
-]
+ALLOWED_HOSTS = _env_list("DJANGO_ALLOWED_HOSTS")
+CSRF_TRUSTED_ORIGINS = _env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+# API Gateway ends HTTPS and passes the original scheme in X-Forwarded-Proto.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # Application definition
 
@@ -53,8 +61,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "pages",
+    # Before allauth, so its sign-in and sign-up templates are replaced by ours.
     "accounts",
     "orders",
+    "allauth",
+    "allauth.account",
 ]
 
 MIDDLEWARE = [
@@ -65,6 +76,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -135,6 +147,22 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Accounts: members sign in with their email address and a password.
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/shops/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+# allauth makes up a username behind the scenes, so messages name the email instead.
+ACCOUNT_USER_DISPLAY = "accounts.models.email_of"
+# Binless doesn't send email yet, so addresses aren't verified and mail goes to the log.
+ACCOUNT_EMAIL_VERIFICATION = "none"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 # Lambda keeps only what's written to stdout and stderr, so errors are logged there.

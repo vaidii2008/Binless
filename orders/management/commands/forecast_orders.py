@@ -55,8 +55,19 @@ class Command(BaseCommand):
         organisation, _ = Organisation.objects.get_or_create(
             name=SAMPLE_ORGANISATION_NAME, defaults={"is_sample": True}
         )
-        store, _ = Store.objects.get_or_create(
-            organisation=organisation, name=STORE_NAME
+        Store.objects.get_or_create(
+            organisation=organisation,
+            name=STORE_NAME,
+            defaults={"is_simulated": True},
         )
-        saved = save_plans(store, tomorrow, plans, model_version=models.name)
-        logger.info("Wrote %d forecasts for %s", saved, tomorrow)
+        # The one place that reads across organisations: every simulated shop runs on
+        # the same simulated sales, so each gets the same plans.
+        stores = list(Store.objects.filter(is_simulated=True).order_by("id"))
+        for store in stores:
+            save_plans(store, tomorrow, plans, model_version=models.name)
+        logger.info(
+            "Wrote %d forecasts for %s to %d simulated shop(s)",
+            len(plans),
+            tomorrow,
+            len(stores),
+        )

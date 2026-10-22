@@ -60,3 +60,31 @@ def sample_store() -> Store | None:
     if organisation is None:
         return None
     return Store.objects.for_organisation(organisation).order_by("id").first()
+
+
+SIMULATED_SHOP_NAME = "Sample shop (simulated)"
+
+
+def open_simulated_shop(organisation: Organisation) -> Store:
+    """Create a simulated shop for organisation, starting from the sample shop's order.
+
+    From the next night on, the batch refreshes it with every other simulated shop.
+    """
+    store = Store.objects.create(
+        organisation=organisation, name=SIMULATED_SHOP_NAME, is_simulated=True
+    )
+    sample = sample_store()
+    forecasts = latest_forecasts(sample) if sample else []
+    if forecasts:
+        plans = [
+            {
+                "product_name": forecast.product.name,
+                "category": forecast.product.category,
+                "quantiles": forecast.quantiles,
+                "orders": forecast.orders,
+                "reasons": forecast.reasons,
+            }
+            for forecast in forecasts
+        ]
+        save_plans(store, forecasts[0].date, plans, forecasts[0].model_version)
+    return store

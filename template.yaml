@@ -26,6 +26,7 @@ Resources:
       Environment:
         Variables:
           DJANGO_ALLOWED_HOSTS: !Sub ".execute-api.${AWS::Region}.amazonaws.com,127.0.0.1,localhost"
+          DJANGO_CSRF_TRUSTED_ORIGINS: !Sub "https://*.execute-api.${AWS::Region}.amazonaws.com"
       Policies:
         - SSMParameterReadPolicy:
             ParameterName: binless/django-secret-key

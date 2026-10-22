@@ -21,14 +21,28 @@
         <a href="{% url 'orders' %}"{% if page == "orders" %} aria-current="page"{% endif %}>Tomorrow's order</a>
         <a href="{% url 'results' %}"{% if page == "results" %} aria-current="page"{% endif %}>Results</a>
         <a href="https://github.com/vaidii2008/Binless">Code</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'shops' %}"{% if page == "shops" or page == "shop_orders" %} aria-current="page"{% endif %}>Your shops</a>
+        <form class="nav-form" method="post" action="{% url 'account_logout' %}">
+          {% csrf_token %}
+          <button type="submit">Sign out</button>
+        </form>
+        {% else %}
+        <a href="{% url 'account_login' %}"{% if page == "account_login" or page == "account_signup" %} aria-current="page"{% endif %}>Sign in</a>
+        {% endif %}
       </nav>
     </div>
   </header>
   {% endwith %}
   <div class="notice">
-    <div class="wrap">Rowan Street Grocer is a simulated shop. Its products and sales are invented, and prices and costs in euro are assumptions.</div>
+    <div class="wrap">Every shop in Binless is simulated: its products and sales are invented, and prices and costs in euro are assumptions.</div>
   </div>
   <main class="wrap">
+    {% if messages %}
+    <div class="messages" role="status">
+      {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+    </div>
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
   <footer class="site-footer">
