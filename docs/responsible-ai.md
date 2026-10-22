@@ -8,7 +8,9 @@ The live order page uses a shop I simulate in `forecasting/simulation.py`. Its n
 
 ## Personal data
 
-Binless holds no customer personal data. The forecasts work from daily sales totals per product, weather and calendar flags. Nothing about who bought what is needed or stored. The only personal data in the system today would be a login for the Django admin, which isn't exposed in Phase 1.
+Binless holds no data about a shop's customers. The forecasts work from daily sales totals per product, weather and calendar flags. Nothing about who bought what is needed or stored.
+
+The only personal data is the members' own: an email address and a password, which Django stores as a salted hash. The email address is used only to sign in, and Binless doesn't send email yet. A member can delete their account at any time, which deletes their email address, their organisation and its shops straight away.
 
 ## Risk under the EU AI Act
 
@@ -32,6 +34,8 @@ Logging overrides and measuring how often recommendations are accepted is planne
 - DEBUG is off unless an environment variable turns it on, and the app only answers on the hosts it expects.
 - Each Lambda's role can read only the two parameters it needs, and the batch can read only the model bucket. The bucket blocks public access.
 - I deploy as an IAM user with MFA and short-lived credentials, not as the AWS root user.
+- A member can open only the shops of organisations they belong to. Any other shop returns a 404, so its existence isn't revealed, and tests check this for every member page.
+- In production the session and CSRF cookies are sent only over HTTPS, and forms only accept posts from the site's own domain.
 
 ## Limitations
 

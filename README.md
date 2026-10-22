@@ -6,7 +6,7 @@ Binless tells an independent grocer how much of each fresh product to order for 
 
 I'm building it as a portfolio project while learning Python. It's a work in progress, and this README describes what exists today.
 
-Live app: [a9lersj3kf.execute-api.eu-west-2.amazonaws.com](https://a9lersj3kf.execute-api.eu-west-2.amazonaws.com/). The order page is for Rowan Street Grocer, a simulated shop: every product and sale on it is invented, and its prices and costs are assumptions. The first visit after a quiet spell takes a few seconds while the server starts.
+Live app: [a9lersj3kf.execute-api.eu-west-2.amazonaws.com](https://a9lersj3kf.execute-api.eu-west-2.amazonaws.com/). The order page is for Rowan Street Grocer, a simulated shop: every product and sale on it is invented, and its prices and costs are assumptions. The first visit after a quiet spell takes a few seconds while the server starts. You can also create an account, which gives you your own organisation with a simulated shop that only you can see.
 
 ![The order page for the simulated shop, with the shelf balance slider moved from fewer leftovers to rarely run out and back](docs/images/order-page.gif)
 
@@ -89,7 +89,8 @@ More detail is in [docs/](docs/): the [model card](docs/model-card.md), [respons
 - A Django app with the order page and its slider, a results page with the benchmark charts, and a landing page, deployed on AWS Lambda.
 - A nightly batch Lambda that writes tomorrow's order for the simulated shop to Postgres. If it stops running, the order page says the saved order is out of date.
 - Organisations that own shops, and memberships that give each user a role (owner, manager or staff). Every shop, product and forecast belongs to one organisation and is read through a manager scoped to it, with tests that one organisation never sees another's data. The simulated shop belongs to a sample organisation, the only one the public pages show.
-- 75 tests, run by GitHub Actions against Postgres on every push, and a second workflow that builds both Lambda images and checks that they start as a non-root user.
+- Accounts with django-allauth: sign-up and sign-in with an email address, a "your shops" page, the order page for each of a member's shops, and account deletion. A new member's shop starts from the sample shop's latest order, and the nightly batch refreshes every simulated shop. Another organisation's shop returns a 404.
+- 85 tests, run by GitHub Actions against Postgres on every push, and a second workflow that builds both Lambda images and checks that they start as a non-root user.
 
 ## Limitations
 
@@ -102,6 +103,9 @@ More detail is in [docs/](docs/): the [model card](docs/model-card.md), [respons
 - The backtests use each day's actual weather, which a real forecast wouldn't know.
 - The reasons on the order page come from a second, mean-regression model trained on the same features, because LightGBM's per-feature contributions don't add up for quantile models.
 - I haven't yet tested the order page with a real shop owner.
+- Members' shops run on the same simulated sales as the sample shop until CSV upload exists.
+- Binless doesn't send email yet, so addresses aren't verified and a forgotten password can't be reset.
+- Sign-up has no protection against bots beyond allauth's rate limits.
 
 ## Run it locally
 

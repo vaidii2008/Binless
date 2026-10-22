@@ -22,6 +22,9 @@ Phase 1 covers stories 1 to 6. The override field (story 5) isn't saved anywhere
 9. As a shop owner, I want the order emailed to me each morning.
 10. As a shop owner, I want to export or delete my shop's data.
 11. As a wholesaler, I want combined, anonymised waste trends from shops that have agreed to share them, and each shop must be able to withdraw that consent.
+12. As a shop owner, I want my own account and shop, which no other business can see.
+
+Story 12 is built, with a simulated shop for each new member, and so is the deletion half of story 10.
 
 ## Notes from shop managers
 
