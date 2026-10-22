@@ -5,10 +5,11 @@ import pandas as pd
 import pytest
 from django.core.management import call_command
 
+from accounts.models import Organisation
 from forecasting.planning import save_models, train_shop_models
-from forecasting.simulation import PRODUCTS, simulate_shop
-from orders.models import Forecast
-from orders.plans import latest_forecasts, save_plans
+from forecasting.simulation import PRODUCTS, STORE_NAME, simulate_shop
+from orders.models import Forecast, Store
+from orders.plans import latest_forecasts, sample_store, save_plans
 
 
 def _plan(units: int) -> dict:
@@ -21,25 +22,33 @@ def _plan(units: int) -> dict:
     }
 
 
-@pytest.mark.django_db
-def test_rerunning_a_day_replaces_its_plans() -> None:
-    save_plans("Test shop (simulated)", date(2026, 10, 20), [_plan(8)], "v1")
-    save_plans("Test shop (simulated)", date(2026, 10, 20), [_plan(9)], "v2")
+@pytest.fixture
+def store(db) -> Store:
+    organisation = Organisation.objects.create(name="Test organisation")
+    return Store.objects.create(organisation=organisation, name="Test shop (simulated)")
+
+
+def test_rerunning_a_day_replaces_its_plans(store: Store) -> None:
+    save_plans(store, date(2026, 10, 20), [_plan(8)], "v1")
+    save_plans(store, date(2026, 10, 20), [_plan(9)], "v2")
     forecast = Forecast.objects.get()
     assert forecast.orders[0]["units"] == 9
     assert forecast.model_version == "v2"
 
 
-@pytest.mark.django_db
-def test_latest_forecasts_returns_only_the_newest_day() -> None:
-    save_plans("Test shop (simulated)", date(2026, 10, 19), [_plan(7)], "v1")
-    save_plans("Test shop (simulated)", date(2026, 10, 20), [_plan(8)], "v1")
-    assert [f.date for f in latest_forecasts()] == [date(2026, 10, 20)]
+def test_latest_forecasts_returns_only_the_newest_day(store: Store) -> None:
+    save_plans(store, date(2026, 10, 19), [_plan(7)], "v1")
+    save_plans(store, date(2026, 10, 20), [_plan(8)], "v1")
+    assert [f.date for f in latest_forecasts(store)] == [date(2026, 10, 20)]
+
+
+def test_latest_forecasts_is_empty_before_the_first_batch(store: Store) -> None:
+    assert latest_forecasts(store) == []
 
 
 @pytest.mark.django_db
-def test_latest_forecasts_is_empty_before_the_first_batch() -> None:
-    assert latest_forecasts() == []
+def test_there_is_no_sample_shop_before_the_first_batch() -> None:
+    assert sample_store() is None
 
 
 @pytest.mark.django_db
@@ -54,8 +63,12 @@ def test_forecast_orders_command_saves_tomorrow_for_every_product(
         "forecast_orders", "--models", str(models_dir), "--today", "2026-10-19"
     )
 
-    forecasts = latest_forecasts()
+    store = sample_store()
+    assert store is not None
+    assert store.name == STORE_NAME
+    forecasts = latest_forecasts(store)
     assert len(forecasts) == len(PRODUCTS)
     assert {f.date for f in forecasts} == {pd.Timestamp("2026-10-20").date()}
     assert {f.model_version for f in forecasts} == {"2026-10-19"}
+    assert {f.organisation for f in forecasts} == {store.organisation}
     assert len(forecasts[0].orders) == 4

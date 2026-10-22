@@ -3,12 +3,16 @@ from datetime import date
 import pytest
 from django.db import IntegrityError
 
+from accounts.models import Organisation
 from orders.models import Forecast, Product, Store
 
 
 @pytest.fixture
 def product(db) -> Product:
-    store = Store.objects.create(name="Test shop (simulated)")
+    organisation = Organisation.objects.create(name="Test organisation")
+    store = Store.objects.create(
+        organisation=organisation, name="Test shop (simulated)"
+    )
     return Product.objects.create(store=store, name="Sourdough loaf", category="Bread")
 
 

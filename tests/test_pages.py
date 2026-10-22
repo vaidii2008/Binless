@@ -5,6 +5,8 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from accounts.models import Organisation
+from orders.models import Store
 from orders.plans import save_plans
 
 LABELS = ["Fewer leftovers", "Balanced", "Fuller shelves", "Rarely run out"]
@@ -24,10 +26,18 @@ def _plan(name: str, category: str, units: list[int]) -> dict:
     }
 
 
+def _store(organisation_name: str, is_sample: bool) -> Store:
+    """Return a new shop in a new organisation."""
+    organisation = Organisation.objects.create(
+        name=organisation_name, is_sample=is_sample
+    )
+    return Store.objects.create(organisation=organisation, name="Test shop (simulated)")
+
+
 @pytest.fixture
 def saved_plans(db) -> None:
     save_plans(
-        "Test shop (simulated)",
+        _store("Sample organisation (simulated)", is_sample=True),
         date(2026, 10, 20),
         [
             _plan("White sliced pan", "Bread", [20, 22, 24, 26]),
@@ -123,6 +133,23 @@ def test_order_table_ignores_a_nonsense_position(
     client: Client, saved_plans: None
 ) -> None:
     assert client.get(reverse("order_table"), {"balance": "lots"}).status_code == 200
+
+
+def test_public_pages_never_show_another_organisations_shop(
+    client: Client, saved_plans: None
+) -> None:
+    other = _store("Another organisation", is_sample=False)
+    save_plans(
+        other,
+        date(2026, 10, 22),
+        [_plan("Private label scones", "Bread", [5, 6, 7, 8])],
+        model_version="test",
+    )
+    for page in ("home", "orders", "order_table"):
+        content = client.get(reverse(page)).content
+        assert b"White sliced pan" in content
+        assert b"Private label scones" not in content
+    assert b"Thursday 22 October" not in client.get(reverse("orders")).content
 
 
 def test_results_page_shows_the_benchmark_and_credits_the_dataset(

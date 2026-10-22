@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 from django.core.management.base import BaseCommand
 
+from accounts.models import SAMPLE_ORGANISATION_NAME, Organisation
 from forecasting.planning import load_models, plan_orders
 from forecasting.simulation import (
     CATEGORIES,
@@ -15,6 +16,7 @@ from forecasting.simulation import (
     STORE_NAME,
     simulate_shop,
 )
+from orders.models import Store
 from orders.plans import save_plans
 
 HISTORY_DAYS = 180
@@ -50,5 +52,11 @@ class Command(BaseCommand):
             critical_ratios,
             SHELF_BALANCE,
         )
-        saved = save_plans(STORE_NAME, tomorrow, plans, model_version=models.name)
+        organisation, _ = Organisation.objects.get_or_create(
+            name=SAMPLE_ORGANISATION_NAME, defaults={"is_sample": True}
+        )
+        store, _ = Store.objects.get_or_create(
+            organisation=organisation, name=STORE_NAME
+        )
+        saved = save_plans(store, tomorrow, plans, model_version=models.name)
         logger.info("Wrote %d forecasts for %s", saved, tomorrow)

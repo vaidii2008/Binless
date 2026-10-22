@@ -13,6 +13,7 @@ COPY requirements/web.txt requirements/web.txt
 RUN pip install --no-cache-dir -r requirements/web.txt
 COPY manage.py ./
 COPY config config
+COPY accounts accounts
 COPY pages pages
 COPY orders orders
 # Lambda runs the code as a non-root user, so every file must be readable by all users.
@@ -32,6 +33,7 @@ COPY requirements/web.txt requirements/batch.txt requirements/
 RUN pip install --no-cache-dir -r requirements/web.txt -r requirements/batch.txt
 COPY manage.py ./
 COPY config config
+COPY accounts accounts
 COPY pages pages
 COPY orders orders
 COPY forecasting forecasting

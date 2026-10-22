@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
-from orders.plans import latest_forecasts
+from orders.plans import latest_forecasts, sample_store
 
 from . import results
 
@@ -57,8 +57,9 @@ def order_table(request: HttpRequest) -> HttpResponse:
 
 
 def _order_context(request: HttpRequest) -> dict:
-    """Return the latest forecasts with every product's order at the chosen slider position."""
-    forecasts = latest_forecasts()
+    """Return the sample shop's latest forecasts, ordered at the slider position."""
+    store = sample_store()
+    forecasts = latest_forecasts(store) if store else []
     if not forecasts:
         return {"rows": []}
     labels = [order["label"] for order in forecasts[0].orders]

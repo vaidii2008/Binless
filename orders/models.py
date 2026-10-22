@@ -1,14 +1,23 @@
 from django.db import models
 
+from accounts.models import OrganisationOwned
 
-class Store(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+
+class Store(OrganisationOwned):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=["organisation", "name"], name="unique_store_name"
+            ),
+        )
 
     def __str__(self) -> str:
         return self.name
 
 
-class Product(models.Model):
+class Product(OrganisationOwned):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=50)
@@ -23,8 +32,13 @@ class Product(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def save(self, *args, **kwargs) -> None:
+        # A product always belongs to its store's organisation.
+        self.organisation_id = self.store.organisation_id
+        super().save(*args, **kwargs)
 
-class Forecast(models.Model):
+
+class Forecast(OrganisationOwned):
     """One product's forecast and order options for one day, written by the batch."""
 
     product = models.ForeignKey(
@@ -48,3 +62,8 @@ class Forecast(models.Model):
 
     def __str__(self) -> str:
         return f"{self.product} on {self.date}"
+
+    def save(self, *args, **kwargs) -> None:
+        # A forecast always belongs to its product's organisation.
+        self.organisation_id = self.product.organisation_id
+        super().save(*args, **kwargs)

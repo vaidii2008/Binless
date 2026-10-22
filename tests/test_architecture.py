@@ -27,7 +27,7 @@ def test_forecasting_package_never_imports_django() -> None:
 def test_web_code_never_imports_the_forecasting_stack() -> None:
     paths = [
         path
-        for app in ("config", "pages", "orders")
+        for app in ("config", "accounts", "pages", "orders")
         for path in (ROOT / app).rglob("*.py")
         if "management" not in path.parts
     ]
