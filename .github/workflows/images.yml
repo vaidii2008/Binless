@@ -1,0 +1,57 @@
+name: Images
+
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-24.04
+    env:
+      DJANGO_SECRET_KEY: ci-only-not-a-real-secret
+      DATABASE_URL: postgres://binless:binless-ci@localhost:5432/binless
+    services:
+      db:
+        image: postgres:18
+        env:
+          POSTGRES_DB: binless
+          POSTGRES_USER: binless
+          POSTGRES_PASSWORD: binless-ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U binless"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build --target web --tag binless-web .
+      - run: docker build --target batch --tag binless-batch .
+      # Lambda runs the code as a non-root user, so these checks do too.
+      - name: Load the batch code as a non-root user
+        run: >-
+          docker run --rm --user 1000:1000 --entrypoint python3
+          --env DJANGO_SECRET_KEY --env DATABASE_URL binless-batch
+          -c "import django; django.setup(); import batch.handler, forecasting.planning"
+      - name: Migrate the database
+        run: >-
+          docker run --rm --network host
+          --env DJANGO_SECRET_KEY --env DATABASE_URL binless-web
+          python manage.py migrate
+      - name: Start the web image as a non-root user
+        run: >-
+          docker run --detach --name web --network host --user 1000:1000
+          --env DJANGO_SECRET_KEY --env DATABASE_URL --env DJANGO_ALLOWED_HOSTS=localhost
+          binless-web
+      - name: Check every page answers
+        run: |
+          for path in /healthz / /orders/ "/orders/table?balance=2" /results/; do
+            curl --fail --silent --show-error --output /dev/null \
+              --retry 10 --retry-connrefused --retry-delay 1 "http://localhost:8080$path"
+          done
+          docker exec --user 1000:1000 web python -c "from zoneinfo import ZoneInfo; ZoneInfo('Europe/Dublin')"
+      - name: Show the web image's logs
+        if: failure()
+        run: docker logs web
